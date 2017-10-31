@@ -1,0 +1,296 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="/static/letters/script/bootstrap.min.css">
+
+		<!-- jQuery library -->
+		<script src="/static/letters/script/jquery.min.js"></script>
+		<!-- js-->
+		<script src="/static/letters/script/letters.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="/static/letters/script/bootstrap.min.js"></script>
+		<!-- My css-->
+		<link rel="stylesheet" type="text/css" href="/static/letters/css/home.css">
+		<title>
+			Letters
+		</title>
+	</head>
+	<body onload="set_pos()" >
+			
+			<nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+				<div class="row" id="myid" style="border:1px solid black;">
+					<div class="col-md-4" >				
+						<img src="/static/letters/bhulogo.JPG" width="100%">
+						</img>
+					</div>
+					<div class="col-md-2"></div>
+					<div class="col-md-6" id="id1"> Faculty of Arts
+					</div>
+				</div>
+			  <div class="container-fluid" id="cont-flu">
+				<div class="navbar-header" >
+					<a class="anc" href="#">Banaras Hindu University Varanasi</a>
+				</div>
+				<ul class="nav navbar-nav navbar-right" id="ele2">
+				  <li>
+					<a href="#"style="color:black">
+						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+						dhiraj&nbsp
+						</span>
+					</a>
+				  </li>
+				</ul>
+			  </div>
+			</nav>
+			<div id="personal" >
+				<ul class="list-group">
+					<li class="list-group-item">Settings</li>
+					<li class="list-group-item">Profile</li>
+					<li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+				</ul>
+			</div>
+			<div id="body_item">
+				<div class="panel-group">
+				  <div class="panel panel-default">
+					<div class="panel-heading titles">
+					  <a data-toggle="collapse" href="#collapse1" class="letter_link">
+						<h4 class="panel-title">
+							<span class="glyphicon glyphicon-chevron-right"></span>
+								Add New Letter
+						</h4>
+					  </a>
+					</div>
+					<div id="collapse1" class="panel-collapse collapse well ">
+						<form  style="width:360px" action="/letters/addletter/" method="post" enctype="multipart/form-data">
+						  <div class="form-group">
+							<label for="mail">Source:</label>
+							<input type="email" class="form-control" placeholder="email id" id="mail" name="mail">
+						  </div>
+						  <div class="form-group">
+							<label for="lno">Letter No.</label>
+							<input type="number" class="form-control" placeholder="Letter number" id="lno" name="lno">
+						  </div>
+						  <div class="form-group">
+							<label for="sub">Subject</label>
+							<input type="text" class="form-control" placeholder="Subject" id="subject" name="subject">
+						  </div>
+						  <div class="form-group">
+							<label for="imge">Image:</label>
+							<input type="file" id="pic" accept="image/*" id="imge" name="imge">
+						  </div>
+						  <button id="submitnew" type="submit" class="btn btn-default" name="sbmit">Submit</button>
+						</form>
+					</div>
+				</div>
+				<br>
+				
+				<div class="panel-group">
+				  <div class="panel panel-default">
+					<div class="panel-heading titles">
+					  <a data-toggle="collapse" href="#collapse1" class="letter_link">
+						<h4 class="panel-title">
+							<span class="glyphicon glyphicon-chevron-right"></span>
+								New						
+								<span class="badge">
+									{{ NEW|length }}
+								</span>
+						</h4>
+					  </a>
+					</div>
+					{% for i in range(NEW|length) %}
+					<div id="collapse1" class="panel-collapse collapse text_modify">
+						<ul class="list-group" id="newletters">
+							<li class="list-group-item letter_inside well">
+								<a data-toggle="collapse" href="#{{ new[i][1] }}" >
+									<div class="detail_inline">
+										<span class="glyphicon glyphicon-chevron-down"></span>
+										Letter id : {{ new[i][1] }}
+									</div>
+									<div class="detail_inline">Source : {{ new[i][0] }}</div>
+									<div class="detail_inline">Date : {{ new[i][2] }}</div>
+									{% if new[i][4] == 'pending' %}
+									<div class="detail_inline">Status : <strong style="color:red">Pending</strong></div>
+									{% else %}
+									<div class="detail_inline">Status : <strong style="color:green">{{ new[i][4] }}</strong></div>
+									{% endif %}
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" onclick="view(new[i][1])">View Letter</button>
+									</div>
+									<div id="{{ new[i][1] }}" class="collapse" >
+									<div style="margin-top:2%;margin-bottom:2%">Subject : {{ new[i][3] }}</div>
+									<div class="history">
+										History<br>
+										
+										<table class="table">
+											<tbody>
+											{% for j in new[i][5] %}
+												<tr>
+													<td >j[0]</td> 
+													<td >Date : j[1]</td>
+													<td >Forwarded  to j[2]</td>
+												</tr>
+											{% endfor %}
+											</tbody>
+										</table>
+									</div>
+									{% if new[i][4] !="completed" %}
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:blue;border:none" onclick="view()"><strong>Forward</strong></button>
+									</div>
+									<div class="detail_inline" >
+										<button type="button" style="background:lime;border:none" class="btn btn-info" onclick="view()"><strong>Completed</strong></button>
+									</div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:red;border:none" onclick="view()"><strong>Reject</strong></button>
+									</div>
+									{% endif %}
+								  </div>
+							  </a>
+							</li>
+						
+						</ul>
+					</div>
+					{% endfor %}
+				  </div>
+				</div>
+				  <div class="panel panel-default">
+					<div class="panel-heading titles">
+					  <a data-toggle="collapse" href="#collapse4" class="letter_link">
+						<h4 class="panel-title">
+							<span class="glyphicon glyphicon-chevron-right"></span>
+							All
+							<span class="badge">
+								7
+							</span>
+						</h4>
+					  </a>
+					</div>
+					<div id="collapse4" class="panel-collapse collapse text_modify">
+						<ul class="list-group">
+							<li class="list-group-item letter_inside well">
+								<a data-toggle="collapse" href="#A2234" >
+									<div class="detail_inline">
+										<span class="glyphicon glyphicon-chevron-down"></span>
+										Letter id : A2234
+									</div>
+									<div class="detail_inline">Source : Dhiraj</div>
+									<div class="detail_inline">Date : 26-08-2017</div>
+									<div class="detail_inline">Status : <strong style="color:red">Pending</strong></div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" onclick="view()">View Letter</button>
+									</div>
+									<div id="A2234" class="collapse" >
+									<div style="margin-top:2%;margin-bottom:2%">Subject : Subject of the letter something something something</div>
+									<div class="history">
+										History<br>
+										<table class="table">
+											<tbody>
+												<tr>
+													<td >Person 1</td> 
+													<td >Date : 01-02-2017</td>
+													<td >Forwarded  to Person2</td>
+												</tr>
+												<tr>
+													<td>Person 2</td> 
+													<td>Date : 05-05-2017</td>
+													<td>Forwarded  to Person3</td>
+												</tr>
+												<tr>
+													<td>Person 4</td> 
+													<td>Date : 05-05-2017</td>
+													<td>Forwarded to Person5</td>
+												</tr>
+												<tr>
+													<td>Person 5</td> 
+													<td>Date : 06-05-2017</td>
+													<td>Forwarded to Person8</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:blue;border:none" onclick="view()"><strong>Forward</strong></button>
+									</div>
+									<div class="detail_inline" >
+										<button type="button" style="background:lime;border:none" class="btn btn-info" onclick="view()"><strong>Completed</strong></button>
+									</div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:red;border:none" onclick="view()"><strong>Reject</strong></button>
+									</div>
+								  </div>
+							  </a>
+							</li>
+							<li class="list-group-item letter_inside well">
+								<a data-toggle="collapse" href="#B1244" >
+									<div class="detail_inline">
+										<span class="glyphicon glyphicon-chevron-down"></span>
+										Letter id : B1244
+									</div>
+									<div class="detail_inline">Source : Himanshu</div>
+									<div class="detail_inline">Date : 25-09-2017</div>
+									<div class="detail_inline">Status : <strong style="color:green">Completed</strong></div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" onclick="view()">View Letter</button>
+									</div>
+									<div id="B1244" class="collapse" >
+									<div style="margin-top:2%;margin-bottom:2%">Subject : Subject of the letter something something something</div>
+									<div class="history">
+										History<br>
+										<table class="table">
+											<tbody>
+												<tr>
+													<td >Person 1</td> 
+													<td >Date : 01-02-2017</td>
+													<td >Forwarded  to Person2</td>
+												</tr>
+												<tr>
+													<td>Person 2</td> 
+													<td>Date : 05-05-2017</td>
+													<td>Forwarded  to Person3</td>
+												</tr>
+												<tr>
+													<td>Person 4</td> 
+													<td>Date : 05-05-2017</td>
+													<td>Forwarded to Person5</td>
+												</tr>
+												<tr>
+													<td>Person 5</td> 
+													<td>Date : 06-05-2017</td>
+													<td>Forwarded to Person8</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:blue;border:none" onclick="view()"><strong>Forward</strong></button>
+									</div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:red;border:none" onclick="view()"><strong>Reject</strong></button>
+									</div>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" style="background:green;border:none" onclick="view()"><strong>Verify</strong></button>
+									</div>
+								  </div>
+							  </a>
+							</li>
+						
+						</ul>
+
+					</div>
+				  </div>
+				</div>
+			</div>
+		<!-- 	<div>
+				<input id="sample" type="text" style="margin-top:500px" value="def"></input>
+			</div>
+			
+				Number| View |details ->date, source,subject, status, history| take action -> Forward, Completed,reject + descp|
+			-->
+	</body>
+	<script type=text/javascript>
+	  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	</script>
+</html>

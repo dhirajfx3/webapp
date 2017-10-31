@@ -1,0 +1,180 @@
+.theme
+{
+	background: linear-gradient(60deg,yellow,white,aqua);	
+	position:fixed;
+	width:100%;
+	z-index:100;
+	border-radius:0px;
+}
+#id1
+{
+	font-size:400%;
+	line-height:100px;
+	font-family:Arial-Black;
+	vertical-align:middle;
+}
+.item1
+{
+	position:absolute;
+	top:20%;
+	color:black;
+	font-size:100px;
+	left:25%;width:100%;
+	vertical-align:middle;
+}
+.item1 span
+{
+	padding:10px;
+	border-radius:10px;
+}
+.item1 span:hover
+{
+	-webkit-transition:  0.1s;
+    text-shadow: 0px 0px 43px rgba(147,238,245,1);
+ 
+}
+
+body
+{
+	/*background:linear-gradient(60deg,yellow,white,aqua) ! important;*/
+	background:url("/static/student/letters.jpg");
+}
+.col-md-3
+{
+	font-size:35px;
+	font-family:serif;
+	height:200px;
+	line-height:180px;
+}
+
+.updates
+{
+	background:white;
+	border-radius:5px;
+	padding:5px;
+}
+.anc
+{
+	line-height:50px;
+	font-family:Arial-Black;
+	color:black;
+	font-size:20px;
+	text-decoration:none;
+	margin-left:10px;
+	padding:10px;
+	margin-bottom:0px;
+}
+.anc:hover
+{
+	-webkit-transition:  0.2s;
+    text-shadow: 0px 0px 43px rgba(147,238,245,1);
+	background:white;
+    color:black;
+	text-decoration:none;
+	padding:10px;
+}
+#ele1
+{
+	z-index:12;
+	background:linear-gradient(60deg,yellow,white,aqua);
+}
+#ele2 li:hover
+{	-webkit-transition:  0.2s;
+    text-shadow: 0px 0px 43px rgba(147,238,245,1);
+	background:white;
+    color:black;
+	text-decoration:none;
+}
+/*
+Menu
+*/
+body
+{
+	margin-right:0px;
+}
+#personal
+{
+	display:none;
+	position:fixed;
+	right:0;
+	margin-right:0px;
+	width:125px;
+}
+#body_item
+{
+	margin-right:5px;
+}
+.titles:hover
+{
+	background:cyan;
+}
+.badge
+{
+	float:right;
+}
+.letter_link
+{
+	text-decoration:none;
+	color:black;
+}
+.letter_link:active
+{
+	text-decoration:none;
+	color:black;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:active {
+    text-decoration: none;
+}
+.letter_inside
+{
+	max-width:90%;
+	margin-left:5%;
+	margin-top:1%;
+	margin-bottom:1% !important;
+}
+.detail_inline
+{
+	display:inline;
+	margin-right:5%;
+}
+.text_modify
+{
+padding: 2px;
+overflow: hidden;
+font: normal 16px/1 "Times New Roman", Times, serif;
+color: black;
+-o-text-overflow: ellipsis;
+text-overflow: ellipsis;
+background-position: 50% 50%;
+-webkit-background-origin: padding-box;
+background-origin: padding-box;
+-webkit-background-clip: border-box;
+background-clip: border-box;
+-webkit-background-size: auto auto;
+background-size: auto auto;
+text-shadow: 3px 1px 0 rgba(255,255,255,0.2) ;
+-webkit-transform-origin: 50% 50% 0;
+transform-origin: 50% 50% 0;
+}
+.trb
+{
+	cursor:pointer;
+}
+.trb:hover
+{
+	background: -moz-linear-gradient(-45deg, #b7deed 0%, #71ceef 40%, #21b4e2 61%, #b7deed 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(-45deg, #b7deed 0%,#71ceef 40%,#21b4e2 61%,#b7deed 100%);
+}

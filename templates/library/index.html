@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="/static/library/script/bootstrap.min.css">
+
+		<!-- jQuery library -->
+		<script src="/static/library/script/jquery.min.js"></script>
+		<!-- js-->
+		<script src="/static/library/script/letters.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="/static/library/script/bootstrap.min.js"></script>
+		<!-- My css-->
+		<link rel="stylesheet" type="text/css" href="/static/library/css/home.css">
+		<title>
+			Library
+		</title>
+	</head>
+	<body onload="set_pos()" >
+			
+			<nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+				<div class="row" id="myid" style="border:1px solid black;">
+					<div class="col-md-4" >				
+						<img src="/static/library/bhulogo.JPG" width="100%">
+						</img>
+					</div>
+					<div class="col-md-2"></div>
+					<div class="col-md-6" id="id1"> Faculty of Arts
+					</div>
+				</div>
+			  <div class="container-fluid" id="cont-flu">
+				<div class="navbar-header" >
+					<a class="anc" href="#">Banaras Hindu University Varanasi</a>
+				</div>
+				<ul class="nav navbar-nav navbar-right" id="ele2">
+				  <li>
+					<a href="#"style="color:black">
+						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+						dhiraj&nbsp
+						</span>
+					</a>
+				  </li>
+				</ul>
+			  </div>
+			</nav>
+			<div id="personal" class="menu">
+				<ul class="list-group">
+					<li class="list-group-item">Settings</li>
+					<li class="list-group-item">Profile</li>
+					<li class="list-group-item">Logout</li>
+				</ul>
+			</div>
+			<div id="body_item" class="text_modify">
+				<div class="well">
+					<h4 style="display:inline;margin-right:3%">
+						<div class="form-group" style="display:inline">
+							<label for="fliter">Search books by </label>
+							<select class="form-control" style="width:30% !important;display:inline;margin-left:2%" id="filter">
+							<option>Card number borrowed</option>
+							<option>Due date expired</option>
+							<option>Book Accession number</option>
+							<option>Title</option>
+							<option>Book publisher</option>
+							</select>
+						</div> 
+					<input type="text" id="inp1" class="form-control" style="width:30% !important;display:inline;margin-left:2%" value="15075014" ></input>
+					</h4>
+					<button type="button" style="display:inline" onclick="query()" id="b1"class="btn btn-info">Search</button>
+				</div>
+				<div class="well">Search by Due date expired </div>
+				<div id="search_results" class="well">
+					<table class="table">
+						<tr>
+							<th>Status</th>
+							<th>Accession number</th>
+							<th>Title</th>
+							<th>Author</th>
+							<th>Publisher</th>
+							<th>Card number borrowed</th>
+						</tr>
+						<tbody>
+							<tr  class="trb well" id="A21222">
+								<td>Borrowed</td>
+								<td>A21222</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>1232A21</td>
+							</tr>
+							<tr  class="trb well" id="A21232">
+								<td>Borrowed</td>
+								<td>A21232</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>1232A21</td>
+							</tr>
+							<tr  class="trb well" id="A21322">
+								<td>Borrowed</td>
+								<td>A21322</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>1232A21</td>
+							</tr>
+							<tr  class="trb well" id="D21222">
+								<td>Borrowed</td>
+								<td>D21222</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>DBMS</td>
+								<td>1232A21</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="text-center">
+					<ul class="pagination well">
+					<li class="active"><a href="#" >1</a></li>
+					<li><a href="">2</a></li>
+					<li><a href="">3</a></li>
+					<li><a href="">4</a></li>
+					<li><a href="">5</a></li>
+					</ul>
+					</div>
+				</div>
+			</div>
+			<div id="modal_test" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="panel panel-default">
+						<div class="panel-body text-center">
+							<h4>You sure you want to edit <strong id="roll" style="color:red"></strong> book details ?</h4>
+						</div>
+					</div>
+					<div class="well text-center">
+						<button type="button" id="YES" style="margin-right:2%;padding-left:20px;padding-right:20px" class="btn btn-info"><h4>Yes</h4></button>
+						<button type="button" id="NO" style="margin-right:2%;padding-left:20px;padding-right:20px" class="btn btn-danger"><h4>No</h4></button>
+					</div>
+			  </div>
+			</div>
+			<!--<div>
+				<input id="sample" type="text" style="margin-top:500px" value="def"></input>
+			</div>
+			
+				Number| View |details ->date, source,subject, status, history| take action -> Forward, Completed,reject + descp|
+			-->
+	</body>
+</html>
