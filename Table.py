@@ -13,15 +13,19 @@ def attempt_creating_tables():
 	book(d)
 	borrowed(d)
 	
+	
+	
+
 	professor(d)
 	course(d)
-	
-	enrolledin(d)
+
 	timeTable(d)
-	ofClass(d)
+	ofClass(d)	
+	enrolledin(d)
 	
-	letter(d)
+	
 	office_personnels(d)
+	letter(d)
 	reciever_list(d)
 	
 	system_users(d)
@@ -46,6 +50,7 @@ def book(curr):
 						libcard int,
 						foreign key (libcard)
 							references library(cardno)
+							ON DELETE SET NULL
 					);
 	''')
 	pass
@@ -59,10 +64,13 @@ def borrowed(curr):
 						issue date,
 						due date,
 						foreign key (acno)
-							references book(ano),
+							references book(ano)
+							ON DELETE CASCADE,
 						foreign key (cno)
-							references library(cardno),
+							references library(cardno)
+							ON DELETE CASCADE,
 						primary key(acno,cno)
+						
 					);
 	''')
 	pass
@@ -78,6 +86,7 @@ def library_card(curr):
 						stuid int,
 						foreign key (stuid)
 							references student(eno)
+							ON DELETE CASCADE
 					);
 	''')
 	pass
@@ -101,7 +110,10 @@ def student(curr):
 						religion varchar(30),
 						dob date,
 						contactno bigint,
-						email varchar(100)
+						email varchar(100),
+                        programme varchar(100),
+                        admdate date,
+						class varchar(100)
 					);
 	''')
 	pass
@@ -110,13 +122,14 @@ def attendance(curr):
 	curr.execute(r'''
 				create table if not exists attendance
 					(
-						classdate datetime,
+						classdate date,classslot int,
 						duration int,
 						stuid int,
 						classattended bit(1),
 						foreign key (stuid)
-							references student(eno),
-						primary key (classdate,stuid)
+							references student(eno)
+							ON DELETE CASCADE,
+						primary key (classdate,classslot,stuid)
 					);
 	''')
 	pass
@@ -131,7 +144,8 @@ def degree(curr):
 						institute varchar(100),
 						year int,
 						foreign key (stuid)
-							references student(eno),
+							references student(eno)
+							ON DELETE CASCADE,
 						primary key (name,stuid)
 					);
 	''')
@@ -148,6 +162,7 @@ def course(curr):
 						cprof int, 
 						foreign key (cprof)
 							references professor(profid)
+							ON DELETE SET NULL
 					);
 	''')
 	pass
@@ -161,7 +176,8 @@ def enrolledin(curr):
 						foreign key (stuid)
 							references student(eno),
 						foreign key (courseid)
-							references course(cid),
+							references course(cid)
+							ON DELETE CASCADE,
 						primary key(stuid,courseid)
 					);
 	''')
@@ -172,14 +188,16 @@ def ofClass(curr):
 				create table if not exists ofclass
 					(
 						stuid int,
-						cldate datetime,
+						cldate date,clslot int,
 						duration int,
 						class_ varchar(100),
 						foreign key (stuid)
-							references student(eno),
-						foreign key (cldate,class_)
-							references timetable(date_,class_id),
-						primary key(stuid,cldate)
+							references student(eno)
+							ON DELETE CASCADE,
+						foreign key (cldate,clslot,class_)
+							references timetable(date_,slot,class_id)
+							ON DELETE CASCADE,
+						primary key(stuid,cldate,clslot)
 					);
 	''')
 	pass
@@ -188,12 +206,13 @@ def timeTable(curr):
 	curr.execute(r'''
 				create table if not exists timetable
 					(
-						date_ datetime,
+						date_ date,slot int,
 						class_id varchar(100),
 						courseid int,
 						foreign key(courseid)
-							references course(cid),
-						primary key(date_,class_id)
+							references course(cid)
+							ON DELETE CASCADE,
+						primary key(date_,slot,class_id)
 					);
 	''')
 	pass
@@ -206,7 +225,8 @@ def professor(curr):
 						fname varchar(100),
 						lname varchar(100),
 						email varchar(100),
-						phone bigint
+						phone bigint,
+						class_p varchar(100)
 					);
 	''')
 	pass
@@ -220,7 +240,11 @@ def letter(curr):
 						date_in date,
 						subject varchar(300),
 						status varchar(30),
-						image longblob
+						holder int,
+						image longblob,
+						foreign key(holder)
+							references office_personnels(id)
+							ON DELETE SET NULL
 					);
 	''')
 	pass
@@ -232,15 +256,18 @@ def reciever_list(curr):
 						letno int,
 						idx int ,
 						recieverno int,
-						recipientno int,
+						senderno int,
 						recdate date,
 						action varchar(100),
 						foreign key(letno)
-							references letter(lno),
+							references letter(lno)
+							ON DELETE CASCADE,
 						foreign key(recieverno)
-							references office_personnels(id),
-						foreign key (recipientno)
 							references office_personnels(id)
+							ON DELETE SET NULL,
+						foreign key (senderno)
+							references office_personnels(id)
+							ON DELETE SET NULL
 					);
 	''')
 	pass

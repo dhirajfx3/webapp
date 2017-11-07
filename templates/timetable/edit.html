@@ -1,0 +1,166 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="/static/timetable/script/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="/static/timetable/script/jquery.min.js"></script>
+	<!-- js-->
+	<script src="/static/timetable/script/letters.js"></script>
+	<!-- Latest compiled JavaScript -->
+	<script src="/static/timetable/script/bootstrap.min.js"></script>
+	<!-- My css-->
+	<link rel="stylesheet" type="text/css" href="/static/timetable/css/home.css">
+	<title>
+		Time table
+	</title>
+</head>
+<body onload="set_pos()">
+
+	<nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+		<div class="row" id="myid" style="border:1px solid black;">
+			<div class="col-md-4">
+				<img src="/static/timetable/bhulogo.JPG" width="100%">
+
+			</div>
+			<div class="col-md-2"></div>
+			<div class="col-md-6" id="id1">
+				Faculty of Arts
+			</div>
+		</div>
+		<div class="container-fluid" id="cont-flu">
+			<div class="navbar-header">
+				<a class="anc" href="/">Banaras Hindu University Varanasi</a>
+			</div>
+			<ul class="nav navbar-nav navbar-right" id="ele2">
+				<li>
+					<a href="#" style="color:black">
+						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+							{{name}}&nbsp
+						</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<div id="personal" class="menu">
+		<ul class="list-group">
+			<li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+			<li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+			<li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+
+		</ul>
+	</div>
+	<div id="body_item" class="text_modify">
+		<div class="well">
+			<form action="/timetable/search/" method="post">
+				<table class="table">
+					<tbody>
+						<tr class="trb well">
+							<th class="form-group">
+								Time table search
+							</th>
+						</tr>
+						<tr class="trb well ">
+							<td class="form-group">
+								<select class="form-control" name="filterby" id="filter" required>
+									<option value="stu">Student </option>
+									<option value="cls">Class</option>
+									<option value="fac">Faculty</option>
+								</select>
+							</td>
+							<td class="form-group">
+								<input type="date" name="filtervalue1" class="form-control" required />
+							</td>
+							<td class="form-group">
+								<input type="text" id="inp1" name="filtervalue2" class="form-control" required />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<button type="submit" style="display:inline" id="b1" class="btn btn-info">Search</button>
+			</form>
+		</div>
+		{%if search=="1"%}
+		<div class="well">Search by {{typo}} </div>
+		{% endif %}
+		<div class="well">
+			<table class="table">
+				<tr>
+					{% for i in buttons %}
+					<td class="trb well">
+						<button type="button" onclick="location.href = '/{{ i[1] }}/';" class="btn btn-info">{{i[0]}}</button>
+					</td>
+					{% endfor %}
+				</tr>
+			</table>
+		</div>
+		<form action="/timetableupdate/" method="post">
+			<table class="table">
+				<tbody>
+					<tr class="trb well cliqued">
+						<td class="form-group ">
+							<label >Course :</label>
+						</td>
+						<td class="form-group ">
+							<input type="text" class="form-control"   disabled value="{{ coursename}}" />
+						</td>
+					</tr>
+					<tr class="trb well cliqued">
+						<td class="form-group ">
+							<label>Class :</label>
+						</td>
+						<td class="form-group ">
+							<input type="text" class="form-control" disabled value="{{ classname}}" />
+						</td>
+					</tr>
+					<tr class="trb well cliqued">
+						<td class="form-group ">
+							<label for="smthing">Date :</label>
+						</td>
+						<td class="form-group ">
+							<input type="date" class="form-control" id="smthing" name="date_" placeholder="Date required" required />
+						</td>
+					</tr>
+						<tr class="trb well cliqued">
+							<td class="form-group ">
+								<label for="Time">Time :</label>
+							</td>
+						<td>
+							<select  id="Time" class="form-control" required name="slot">
+								<option value="0">08:00 to 09:00</option>
+								<option value="1">09:00 to 09:00</option>
+								<option value="2">10:00 to 11:00</option>
+								<option value="3">11:00 to 12:00</option>
+								<option value="4">12:00 to 13:00</option>
+								<option value="5">13:00 to 14:00</option>
+								<option value="6">14:00 to 15:00</option>
+								<option value="7">15:00 to 16:00</option>
+								<option value="8">16:00 to 17:00</option>
+								<option value="9">17:00 to 18:00</option>
+							</select>
+						</td>
+					</tr>
+					<tr class="trb well clique">
+						<td></td>
+						<td>
+							<button type="submit" id="submitm"  class="btn btn-default">Submit</button>
+						</td>
+					</tr>
+				</tbody>
+
+			</table>
+		</form>
+
+	</div>
+	<!--<div>
+		<input id="sample" type="text" style="margin-top:500px" value="def"></input>
+	</div>
+
+		Number| View |details ->date, source,subject, status, history| take action -> Forward, Completed,reject + descp|
+	-->
+</body>
+</html>

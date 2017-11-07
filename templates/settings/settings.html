@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="{{url_for('static',filename='home/script/bootstrap.min.css')}}">
+
+		<!-- jQuery library -->
+		<!-- My css-->
+		<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='home/css/home.css')}}">
+		
+		<!-- MY JS-->
+			<script src="{{ url_for('static',filename='home/script/jquery.min.js')}}"></script>
+
+		<!-- Latest compiled JavaScript -->
+	<script src="{{url_for('static',filename='home/script/bootstrap.min.js')}}"></script>
+	<script src="/static/settings/script/hom.js"></script>
+		<title>
+			Welcome
+		</title>
+	</head>
+	<body onload="set_pos()">
+			
+			<nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+				<div class="row" id="myid" style="border:1px solid black;">
+					<div class="col-md-4" >				
+						<img src="{{url_for('static',filename='home/bhulogo.JPG')}}" width="100%">
+					</div>
+					<div class="col-md-2"></div>
+					<div class="col-md-6" id="id1"> Faculty of Arts
+					</div>
+				</div>
+			  <div class="container-fluid">
+				<div class="navbar-header" >
+					<a class="anc" href="/">Banaras Hindu University Varanasi</a>
+				</div>
+				<ul class="nav navbar-nav navbar-right" id="ele2">
+				  <li>
+					<a href="#"style="color:black">
+						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+						{{name}}&nbsp
+						</span>
+					</a>
+				  </li>
+				</ul>
+			  </div>
+			</nav>
+			<div id="personal">
+                <ul class="list-group">
+                    <li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+                </ul>
+			</div>
+		<div  id="body_item">
+            <section>
+                <form name="form1" class="well" method="post" action="/pwdchange/" onsubmit="return validateform()" style="width:600px">
+                    <table class="table">
+
+                        <tbody id="tby">
+                            <tr class="trb well clique" >
+                                <td class="form-group ">
+                                    <label for="cp">Current Password</label>
+                                </td>
+                                <td class="form-group ">
+                                    <input type="password" class="form-control" name="cp" id="cp" />
+
+                                </td>
+                            </tr>
+                            <tr class="trb well clique">
+                                <td class="form-group ">
+                                    <label for="p1">New Password</label>
+                                </td>
+                                <td class="form-group ">
+                                    <input type="password" class="form-control" name="p1" id="p1" />
+                                    <br>
+                                    <input type="password" class="form-control" name="p2" id="p2" />
+                                </td>
+                            </tr>
+                            <tr class="trb well clique">
+                                <td></td>
+                                <td>
+                                    <button type="submit" id="submitm"  class="btn btn-default">Submit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </section>
+		</div>
+	</body>
+	
+</html>

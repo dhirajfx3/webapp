@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="{{url_for('static',filename='home/script/bootstrap.min.css')}}">
+
+		<!-- jQuery library -->
+		<!-- My css-->
+		<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='home/css/home.css')}}">
+		
+		<!-- MY JS-->
+			<script src="{{ url_for('static',filename='home/script/jquery.min.js')}}"></script>
+
+		<!-- Latest compiled JavaScript -->
+	<script src="{{url_for('static',filename='home/script/bootstrap.min.js')}}"></script>
+	<script src="/static/home/script/hom.js"></script>
+		<title>
+			Welcome
+		</title>
+	</head>
+	<body onload="set_pos()">
+			
+			<nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+				<div class="row" id="myid" style="border:1px solid black;">
+					<div class="col-md-4" >				
+						<img src="{{url_for('static',filename='home/bhulogo.JPG')}}" width="100%">
+					</div>
+					<div class="col-md-2"></div>
+					<div class="col-md-6" id="id1"> Faculty of Arts
+					</div>
+				</div>
+			  <div class="container-fluid">
+				<div class="navbar-header" >
+					<a class="anc" href="/">Banaras Hindu University Varanasi</a>
+				</div>
+				<ul class="nav navbar-nav navbar-right" id="ele2">
+				  <li>
+					<a href="#"style="color:black">
+						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+						{{name}}&nbsp
+						</span>
+					</a>
+				  </li>
+				</ul>
+			  </div>
+			</nav>
+			<div id="personal">
+				<ul class="list-group">
+					<li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+				</ul>
+			</div>
+		<div  id="body_item" class="text-modify">
+			<section>
+				<div class="panel panel-default">
+				  
+				<table class="table">
+				<tbody>
+					<thead>
+					<tr class="well">
+						<td >
+						<strong>User id: {{ Data[0] }} </strong>
+						</td>
+					</tr>
+					</thead>
+				</tbody>
+				<tbody>
+					{% for i in Details %}
+					<tr>
+						<td class="well">{{ i[0] }} : {{i[1]}}</td> 
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+				</div>
+			</section>
+			
+		</div>
+	</body>
+	
+</html>

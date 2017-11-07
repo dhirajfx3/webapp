@@ -1,3 +1,7 @@
+body
+{
+	font-family:sans-serif;
+}
 .theme
 {
 	background: linear-gradient(60deg,yellow,white,aqua);	
@@ -153,6 +157,7 @@ a:active {
 .text_modify
 {
 padding: 2px;
+font-size:16px;
 overflow: hidden;
 font: normal 16px/1 "Times New Roman", Times, serif;
 color: black;

@@ -77,6 +77,16 @@ function modal1()
 {
 	document.getElementById("modal_test").modal-"show";
 }
+function togl(e, y) {
+	var x = document.getElementById(e);
+	x.value = x.value == -2 ? -1 : -2;
+	if (x.value == -1) {
+		y.style.backgroundColor = "orange";
+	}
+	else {
+		y.style.backgroundColor = "";
+	}
+}
 $(document).ready(function()
 {
 	$(".trb").click(function() 
@@ -91,5 +101,8 @@ $(document).ready(function()
 	$("#NO").click(function() 
 	{
 		$("#modal_test").modal("hide");
+	});
+	$(".togl").click(function () {
+	    alert($(this).children()[1].children()[1].val());
 	});
 });

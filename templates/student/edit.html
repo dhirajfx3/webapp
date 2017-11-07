@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="/static/timetable/script/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="/static/timetable/script/jquery.min.js"></script>
+    <!-- js-->
+    <script src="/static/timetable/script/edit.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="/static/timetable/script/bootstrap.min.js"></script>
+    <!-- My css-->
+    <link rel="stylesheet" type="text/css" href="/static/timetable/css/home.css">
+    <title>
+        Time table
+    </title>
+</head>
+<body onload="set_pos()">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+        <div class="row" id="myid" style="border:1px solid black;">
+            <div class="col-md-4">
+                <img src="/static/timetable/bhulogo.JPG" style="width:100%">
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-6" id="id1">
+                Faculty of Arts
+            </div>
+        </div>
+        <div class="container-fluid" id="cont-flu">
+            <div class="navbar-header">
+                <a class="anc" href="/">Banaras Hindu University Varanasi</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right" id="ele2">
+                <li>
+                    <a href="#" style="color:black">
+                        <span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+                            {{ name }}&nbsp
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div id="personal" class="menu">
+        <ul class="list-group">
+            <li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+        </ul>
+    </div>
+    <div id="body_item" class="text_modify">
+
+        <div class="well">{{ type }}: {{ id }}</div>
+        <div id="search_results" class="well">
+            <form action="update/" method="post">
+                <table class="table">
+
+                    <tbody id="tby">
+                        {% for i in Requirements %}
+                        <tr class="trb well clique" {% if i[4] !="disabled" %} onclick="togl('{{i[0]}}',this)" {% endif %}>
+                            <td class="form-group ">
+                                <label for="select{{i[0]}}">{{i[2]}}:</label>
+                            </td>
+                            <td class="form-group ">
+                                <input type="{{i[1]}}" class="form-control" id="select{{i[0]}}" name="select{{i[0]}}" value="{{i[3]}}" {{i[4]}} />
+                                <input type="hidden" value="-2" name="{{i[0]}}" id="{{i[0]}}" />
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if type=="student" %}
+                        {% for i in Degree %}
+                        <tr class="trb well cliqued" onclick="togl('{{i[0]}}',this)">
+                            <td class="form-group ">
+                                <label>Degree :</label>
+                            </td>
+                            <td class="form-group ">
+                                <input type="text" class="form-control" id="name{{i[0]}}" name="name{{i[0]}}" value="{{i[1]}}" placeholder="degree name" required />
+                                <input type="number" step="0.01" class="form-control" id="cgpa{{i[0]}}" name="cgpa{{i[0]}}" value="{{i[2]}}" placeholder="CGPA" />
+                                <input type="text" class="form-control" id="ins{{i[0]}}" name="ins{{i[0]}}" value="{{i[3]}}" placeholder="Institute" />
+                                <input type="number" class="form-control" id="yr{{i[0]}}" name="yr{{i[0]}}" value="{{i[4]}}" placeholder="Passing year" />
+                                <input type="hidden" value="-2" name="{{i[0]}}" id="{{i[0]}}" />
+                                <input type="hidden" value="0" name="butd{{i[0]}}" id="butd{{i[0]}}" />
+                                <button type="button" class="btn btn-danger" onclick="tog('butd{{i[0]}}',this)">Delete </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td id="xht">
+                                <button type="button" class="btn btn-default" onclick="load()">Add a past degree </button>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                        {% if type=="student" %}
+                        {% for i in Course %}
+                        <tr class="trb well cliquedc" onclick="togl('{{i[0]}}',this)">
+                            <td class="form-group ">
+                                <label>Course :</label>
+                            </td>
+                            <td class="form-group ">
+                                <input type="number" class="form-control" id="cid{{i[0]}}" name="cid{{i[0]}}" value="{{i[0]}}" placeholder="Course id" required />
+                                <input type="text" class="form-control" id="cname{{i[0]}}" name="cname{{i[0]}}" value="{{i[1]}}" placeholder="course name" />
+                                <input type="text" class="form-control" id="ctype{{i[0]}}" name="ctype{{i[0]}}" value="{{i[2]}}" placeholder="Type" />
+                                <input type="number" class="form-control" id="cduration{{i[0]}}" name="cduration{{i[0]}}" value="{{i[3]}}" placeholder="Duration (months)" />
+                                <input type="number" class="form-control" id="cmentorid{{i[0]}}" name="cmentorid{{i[0]}}" value="{{i[4]}}" placeholder="Current mentor id"/>
+                                <input type="text" class="form-control" id="cmentor{{i[0]}}" name="cmentor{{i[0]}}" value="{{i[5]}}" placeholder="Current mentor " />
+                                <input type="hidden" value="-2" name="{{i[0]}}" id="{{i[0]}}" />
+                                <input type="hidden" value="0" name="butc{{i[0]}}" id="butc{{i[0]}}" />
+                                <button type="button" class="btn btn-danger" onclick="tog('butc{{i[0]}}',this)">Delete </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        <tr>
+                            <td id="xht2">
+                                <button type="button" class="btn btn-default" onclick="load2()">Enroll in a course </button>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                        {% if type=="professor" %}
+                        {% for i in Course %}
+                        <tr class="trb well cliquedc" onclick="togl('{{i[0]}}',this)">
+                            <td class="form-group ">
+                                <label>Course :</label>
+                            </td>
+                            <td class="form-group ">
+                                <input type="number" class="form-control" id="cid{{i[0]}}" name="cid{{i[0]}}" value="{{i[0]}}" placeholder="Course id" required />
+                                <input type="text" class="form-control" id="cname{{i[0]}}" name="cname{{i[0]}}" value="{{i[1]}}" placeholder="course name" />
+                                <input type="text" class="form-control" id="ctype{{i[0]}}" name="ctype{{i[0]}}" value="{{i[2]}}" placeholder="Type" />
+                                <input type="text" class="form-control" id="cduration{{i[0]}}" name="cduration{{i[0]}}" value="{{i[3]}}" placeholder="Duration" />
+                                <input type="number" class="form-control" id="cmentorid{{i[0]}}" name="cmentorid{{i[0]}}" value="{{i[4]}}" placeholder="Current mentor id"  style="display:none"/>
+                                <input type="hidden" value="-2" name="{{i[0]}}" id="{{i[0]}}" />
+                                <input type="hidden" value="0" name="butc{{i[0]}}" id="butc{{i[0]}}" />
+                                <button type="button" class="btn btn-danger" onclick="tog('butc{{i[0]}}',this)">Delete </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        <tr>
+                            <td id="xht3">
+                                <button type="button" class="btn btn-default" onclick="load3()">Mentor in a course </button>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+
+                        <tr class="trb well clique">
+                            <td></td>
+                            <td>
+                                <button type="submit" id="submitm" name="select{{Requirements[0][0]}}" value="{{Requirements[0][3]}}" class="btn btn-default">Submit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--<div>
+        <input id="sample" type="text" style="margin-top:500px" value="def"></input>
+    </div>
+
+        Number| View |details ->date, source,subject, status, history| take action -> Forward, Completed,reject + descp|
+    -->
+</body>
+</html>

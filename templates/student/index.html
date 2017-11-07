@@ -24,7 +24,6 @@
 				<div class="row" id="myid" style="border:1px solid black;">
 					<div class="col-md-4" >				
 						<img src="/static/student/bhulogo.JPG" width="100%">
-						</img>
 					</div>
 					<div class="col-md-2"></div>
 					<div class="col-md-6" id="id1"> Faculty of Arts
@@ -32,13 +31,13 @@
 				</div>
 			  <div class="container-fluid" id="cont-flu">
 				<div class="navbar-header" >
-					<a class="anc" href="#">Banaras Hindu University Varanasi</a>
+					<a class="anc" href="/">Banaras Hindu University Varanasi</a>
 				</div>
 				<ul class="nav navbar-nav navbar-right" id="ele2">
 				  <li>
 					<a href="#"style="color:black">
 						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
-						dhiraj&nbsp
+						{{ name }}&nbsp
 						</span>
 					</a>
 				  </li>
@@ -47,88 +46,58 @@
 			</nav>
 			<div id="personal" class="menu">
 				<ul class="list-group">
-					<li class="list-group-item">Settings</li>
-					<li class="list-group-item">Profile</li>
-					<li class="list-group-item">Logout</li>
+                    <li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
 				</ul>
 			</div>
 			<div id="body_item" class="text_modify">
 				<div class="well">
-					<h4 style="display:inline;margin-right:3%">
-						<div class="form-group" style="display:inline">
-							<label for="fliter">Select student by </label>
-							<select class="form-control" style="width:30% !important;display:inline;margin-left:2%" id="filter">
-							<option>Roll number</option>
-							<option>Section</option>
-							<option>Name</option>
-							<option>Year</option>
-							<option>Course Enrolled</option>
-							</select>
-						</div> 
-					<input type="text" id="inp1" class="form-control" style="width:30% !important;display:inline;margin-left:2%" value="15075014" ></input>
+                    <form action="/student/search/" method="post">
+                    <div class="form-group" style="display:inline">
+                        <h4 style="display:inline;margin-right:3%">
+                            
+                            <label for="filter">Select student by </label>
+                            <select name="filterby" class="form-control" style="width:30% !important;display:inline;margin-left:2%" id="filter">
+                                <option value="eno">Roll number</option>
+                                <option value="programme">Programme</option>
+                                <option value="fname">Name (first name)</option>
+                                <option value="cid">Course Enrolled (specify course id)</option>
+                            </select>
+					<input type="text" id="inp1" name="filtervalue" class="form-control" style="width:30% !important;display:inline;margin-left:2%" value="15075002" >
 					</h4>
-					<button type="button" style="display:inline" onclick="query()" id="b1"class="btn btn-info">Search</button>
+                    </div>
+					<button type="submit" style="display:inline" id="b1"class="btn btn-info">Search</button>
+                        </form>
 				</div>
+                
 				<div id="search_results" class="well">
+                    {% if Rec|count >0 %}
 					<table class="table">
 						<tr>
 							<th>Roll number</th>
-							<th>Name</th>
-							<th>Course</th>
-							<th>Date of enrollment</th>
+							<th>Full Name</th>
+							<th>Programme</th>
+							<th>Date of admission</th>
 						</tr>
 						<tbody>
-							<tr  id="15075014" class="trb well">
-								<td>15075014</td>
-								<td>Dhiraj</td>
-								<td>B.Tech</td>
-								<td>12-05-2015</td>
+                            {% for i in Rec %}
+							<tr  id="{{i[0]}}" class="trb well" onclick="show_stu(this)">
+								<td>{{i[0]}}</td>
+								<td>{{i[1]}}</td>
+								<td>{{i[2]}}</td>
+								<td>{{i[3]}}</td>
 							</tr>
-							<tr  id="15075015" class="trb well">
-								<td>15075015</td>
-								<td>Dhiraj</td>
-								<td>B.Tech</td>
-								<td>12-05-2015</td>
-							</tr>
-							<tr  id="15075024" class="trb well">
-								<td>15075024</td>
-								<td>Dhiraj</td>
-								<td>B.Tech</td>
-								<td>12-05-2015</td>
-							</tr>
-							<tr  id="15075044" class="trb well">
-								<td>15075044</td>
-								<td>Dhiraj</td>
-								<td>B.Tech</td>
-								<td>12-05-2015</td>
-							</tr>
+                            {% endfor %}
 						</tbody>
 					</table>
-					<ul class="pagination well">
-					<li class="active"><a href="#" >1</a></li>
-					<li><a href="">2</a></li>
-					<li><a href="">3</a></li>
-					<li><a href="">4</a></li>
-					<li><a href="">5</a></li>
-					</ul>
+                    {% endif %}
+					<form id="specific" action="/request/" method="post">
+                        <input name="eno" id="eno" style="display:none">
+                    </form>
 				</div>
 			</div>
-			<div id="modal_test" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-
-				<!-- Modal content-->
-				<div class="modal-content">
-					<div class="panel panel-default">
-						<div class="panel-body text-center">
-							<h4>Choose an option for <strong id="roll" style="color:red"></strong></h4>
-						</div>
-					</div>
-					<div class="well text-center">
-						<button type="button" id="view" style="margin-right:2%;padding-left:20px;padding-right:20px" class="btn btn-info"><h4>View</h4></button>
-						<button type="button" class="btn btn-warning" style="margin-right:2%;padding-left:25px;padding-right:25px"><h4>Edit</h4></button>
-					</div>
-			  </div>
-			</div>
+			
 			<!--<div>
 				<input id="sample" type="text" style="margin-top:500px" value="def"></input>
 			</div>

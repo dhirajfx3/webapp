@@ -57,6 +57,13 @@ function create_students()
 {
 	
 }
+function show_stu(e)
+{
+    var x = e.getAttribute("id");
+    var y = document.getElementById("eno");
+    y.value = x;
+    document.getElementById("specific").submit();
+}
 function del()
 {
 	document.getElementById("inp1").disabled=true;

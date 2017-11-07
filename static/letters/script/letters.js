@@ -26,11 +26,23 @@ function set_pos()
 	document.getElementById("body_item").style.marginTop=(document.getElementById("ele2").getBoundingClientRect().bottom+8)+"px";
 //	document.getElementById("sample").value=(document.getElementById("ele2").getBoundingClientRect().bottom+8)+"px";
 }
-function view()
+function view(e)
 {
-	confirm("Sure you want too see?");
+    confirm("Sure you want too see?");
+    document.forms["fiction"]["letterView"].value = e
+    document.forms["fiction"].submit();
+}
+
+function expcall(id)
+{
+	document.getElementById(id).submit();
 }
 $(document).ready(function(){
+$(function() {
+    $(".fwd").bind('click', function() {
+			$("#myModal"+$(this).val()).modal('show');
+			
+    });
 	
-
-})
+});
+});

@@ -1,3 +1,7 @@
+body
+{
+	font-family:sans-serif;
+}
 .theme
 {
 	background: linear-gradient(60deg,yellow,white,aqua);	
@@ -5,6 +9,10 @@
 	width:100%;
 	z-index:100;
 	border-radius:0px;
+}
+.form-control
+{
+	margin-bottom:3px;
 }
 #id1
 {

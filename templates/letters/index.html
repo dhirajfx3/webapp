@@ -24,7 +24,6 @@
 				<div class="row" id="myid" style="border:1px solid black;">
 					<div class="col-md-4" >				
 						<img src="/static/letters/bhulogo.JPG" width="100%">
-						</img>
 					</div>
 					<div class="col-md-2"></div>
 					<div class="col-md-6" id="id1"> Faculty of Arts
@@ -32,13 +31,13 @@
 				</div>
 			  <div class="container-fluid" id="cont-flu">
 				<div class="navbar-header" >
-					<a class="anc" href="#">Banaras Hindu University Varanasi</a>
+					<a class="anc" href="/">Banaras Hindu University Varanasi</a>
 				</div>
 				<ul class="nav navbar-nav navbar-right" id="ele2">
 				  <li>
 					<a href="#"style="color:black">
 						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
-						dhiraj&nbsp
+						{{ name }}&nbsp
 						</span>
 					</a>
 				  </li>
@@ -47,9 +46,9 @@
 			</nav>
 			<div id="personal" >
 				<ul class="list-group">
-					<li class="list-group-item">Settings</li>
-					<li class="list-group-item">Profile</li>
-					<li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+					<li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
 				</ul>
 			</div>
 			<div id="body_item">
@@ -84,42 +83,45 @@
 						  <button id="submitnew" type="submit" class="btn btn-default" name="sbmit">Submit</button>
 						</form>
 					</div>
+				  </div>
 				</div>
 				<br>
 				
 				<div class="panel-group">
 				  <div class="panel panel-default">
 					<div class="panel-heading titles">
-					  <a data-toggle="collapse" href="#collapse1" class="letter_link">
+					  <a data-toggle="collapse" href="#collapse2" class="letter_link">
 						<h4 class="panel-title">
 							<span class="glyphicon glyphicon-chevron-right"></span>
 								New						
 								<span class="badge">
-									{{ NEW|length }}
+									{{ new|count }}
 								</span>
 						</h4>
 					  </a>
 					</div>
-					{% for i in range(NEW|length) %}
-					<div id="collapse1" class="panel-collapse collapse text_modify">
+					
+					<div id="collapse2" class="panel-collapse collapse text_modify">
 						<ul class="list-group" id="newletters">
+						{% for i in range(new|count) %}
 							<li class="list-group-item letter_inside well">
-								<a data-toggle="collapse" href="#{{ new[i][1] }}" >
+								<a data-toggle="collapse" href="#{{ new[i][0] }}" >
 									<div class="detail_inline">
 										<span class="glyphicon glyphicon-chevron-down"></span>
-										Letter id : {{ new[i][1] }}
+										Letter id : {{ new[i][0] }}
 									</div>
-									<div class="detail_inline">Source : {{ new[i][0] }}</div>
+									<div class="detail_inline">Source : {{ new[i][1] }}</div>
 									<div class="detail_inline">Date : {{ new[i][2] }}</div>
-									{% if new[i][4] == 'pending' %}
-									<div class="detail_inline">Status : <strong style="color:red">Pending</strong></div>
+									{% if new[i][4] != 'completed' %}
+									<div class="detail_inline">Status : <strong style="color:red">{{ new[i][4] }}</strong></div>
 									{% else %}
 									<div class="detail_inline">Status : <strong style="color:green">{{ new[i][4] }}</strong></div>
 									{% endif %}
+                                    </a>
 									<div class="detail_inline">
-										<button type="button" class="btn btn-info" onclick="view(new[i][1])">View Letter</button>
+										<button type="button" class="btn btn-info" onclick="view({{new[i][0]}})">View Letter</button>
 									</div>
-									<div id="{{ new[i][1] }}" class="collapse" >
+									<div id="{{ new[i][0] }}" class="collapse" >
 									<div style="margin-top:2%;margin-bottom:2%">Subject : {{ new[i][3] }}</div>
 									<div class="history">
 										History<br>
@@ -128,161 +130,181 @@
 											<tbody>
 											{% for j in new[i][5] %}
 												<tr>
-													<td >j[0]</td> 
-													<td >Date : j[1]</td>
-													<td >Forwarded  to j[2]</td>
+													<td >{{ j[0] }}</td> 
+													<td >Date : {{ j[1] }}</td>
+													<td >Forwarded  to {{ j[2] }}</td>
 												</tr>
 											{% endfor %}
 											</tbody>
 										</table>
 									</div>
-									{% if new[i][4] !="completed" %}
+									{% if new[i][6] == True %}
 									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:blue;border:none" onclick="view()"><strong>Forward</strong></button>
+										<button type="button" class="btn btn-info fwd" style="background:blue;border:none" value="{{new [i][0] }}"><strong>Forward</strong></button>
 									</div>
-									<div class="detail_inline" >
-										<button type="button" style="background:lime;border:none" class="btn btn-info" onclick="view()"><strong>Completed</strong></button>
-									</div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:red;border:none" onclick="view()"><strong>Reject</strong></button>
-									</div>
+									<form action="/complete/" id="comp{{new[i][0]}}"  method="post" class="detail_inline" >
+										<input value="{{new[i][0]}}" name="act" style="display:none;"/>
+										<button type="submit" style="background:lime;border:none" class="btn btn-info com" onclick="expcall('comp{{new[i][0]}}')"  value="{{new[i][0]}}"><strong>Complete</strong></button>
+									</form>
+									<form action="/reject/" id="rej{{new[i][0]}}"  method="post" class="detail_inline">
+										<input value="{{new[i][0]}}" name="act" style="display:none;"/>
+										<button type="submit" class="btn btn-info rej" style="background:red;border:none " onclick="expcall('rej{{new[i][0]}}')" value="{{new[i][0]}}"><strong>Reject</strong></button>
+									</form>
 									{% endif %}
 								  </div>
-							  </a>
 							</li>
-						
+						{% endfor %}
 						</ul>
 					</div>
-					{% endfor %}
+					
 				  </div>
 				</div>
+				{% for i in range(new|count) %}
+				<div id="myModal{{ new[i][0] }}" class="modal fade" role="dialog">
+										  <div class="modal-dialog">
+
+											<!-- Modal content-->
+											<div class="loader " style="margin-left:45%;margin-top:40%" ></div><br>
+											<div class="modal-content">
+											  <div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal">&times;</button>
+													<div class="form-group">
+													<form action="/fwd/" method="post"  >
+														<label for="uid" >UserID:</label>
+														<input type="number" style="display:none" name="lid" value="{{ new[i][0] }}"  />	
+														<input type="number" class="form-control" placeholder="Forward to " id="uid{{ new[i][0] }}"  name="usid"/>
+														<button   class="btn btn-default sumt" value="{{ new[i][0] }}" type="submit" name="sbmit">Submit</button>
+													 </form>
+													  </div>
+													 </div>
+											</div>
+										  </div>
+					</div>
+										
+				{% endfor %}	
+				<div class="panel-group">
+				  <div class="panel panel-default">
+					<div class="panel-heading titles">
+					  <a data-toggle="collapse" href="#collapse3" class="letter_link">
+						<h4 class="panel-title">
+							<span class="glyphicon glyphicon-chevron-right"></span>
+								Pending					
+								<span class="badge">
+									{{ pending|count }}
+								</span>
+						</h4>
+					  </a>
+					</div>
+					
+					<div id="collapse3" class="panel-collapse collapse text_modify">
+						<ul class="list-group" id="newletters">
+						{% for i in range(pending|count) %}
+							<li class="list-group-item letter_inside well">
+								<a data-toggle="collapse" href="#{{ pending[i][0] }}" >
+									<div class="detail_inline">
+										<span class="glyphicon glyphicon-chevron-down"></span>
+										Letter id : {{ pending[i][0] }}
+									</div>
+									<div class="detail_inline">Source : {{ pending[i][1] }}</div>
+									<div class="detail_inline">Date : {{ pending[i][2] }}</div>
+									{% if pending[i][4] != 'completed' %}
+									<div class="detail_inline">Status : <strong style="color:red">{{ pending[i][4] }}</strong></div>
+									{% else %}
+									<div class="detail_inline">Status : <strong style="color:green">{{ pending[i][4] }}</strong></div>
+									{% endif %}
+                                    </a>
+									<div class="detail_inline">
+										<button type="button" class="btn btn-info" onclick="view({{pending[i][0]}})">View Letter</button>
+									</div>
+									<div id="{{ pending[i][0] }}" class="collapse" >
+									<div style="margin-top:2%;margin-bottom:2%">Subject : {{ pending[i][3] }}</div>
+									<div class="history">
+										History<br>
+										
+										<table class="table">
+											<tbody>
+											{% for j in pending[i][5] %}
+												<tr>
+													<td >{{ j[0] }}</td> 
+													<td >Date : {{ j[1] }}</td>
+													<td >Forwarded  to {{ j[2] }}</td>
+												</tr>
+											{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								  </div>
+							</li>
+						{% endfor %}
+						</ul>
+					</div>
+				  </div>
+				</div>
+				
+				
+			<div class="panel-group">
 				  <div class="panel panel-default">
 					<div class="panel-heading titles">
 					  <a data-toggle="collapse" href="#collapse4" class="letter_link">
 						<h4 class="panel-title">
 							<span class="glyphicon glyphicon-chevron-right"></span>
-							All
-							<span class="badge">
-								7
-							</span>
+								Others				
+								<span class="badge">
+									{{ other|count }}
+								</span>
 						</h4>
 					  </a>
 					</div>
-					<div id="collapse4" class="panel-collapse collapse text_modify">
-						<ul class="list-group">
+			<div id="collapse4" class="panel-collapse collapse text_modify">
+						<ul class="list-group" id="newletters">
+						{% for i in range(other|count) %}
 							<li class="list-group-item letter_inside well">
-								<a data-toggle="collapse" href="#A2234" >
+								<a data-toggle="collapse" href="#{{ other[i][0] }}" >
 									<div class="detail_inline">
 										<span class="glyphicon glyphicon-chevron-down"></span>
-										Letter id : A2234
+										Letter id : {{ other[i][0] }}
 									</div>
-									<div class="detail_inline">Source : Dhiraj</div>
-									<div class="detail_inline">Date : 26-08-2017</div>
-									<div class="detail_inline">Status : <strong style="color:red">Pending</strong></div>
+									<div class="detail_inline">Source : {{ other[i][1] }}</div>
+									<div class="detail_inline">Date : {{ other[i][2] }}</div>
+									{% if other[i][4] != 'completed' %}
+									<div class="detail_inline">Status : <strong style="color:red">{{ other[i][4] }}</strong></div>
+									{% else %}
+									<div class="detail_inline">Status : <strong style="color:green">{{ other[i][4] }}</strong></div>
+									{% endif %}
+                                    </a>
 									<div class="detail_inline">
-										<button type="button" class="btn btn-info" onclick="view()">View Letter</button>
+										<button type="button" class="btn btn-info" onclick="view({{other[i][0]}})">View Letter</button>
 									</div>
-									<div id="A2234" class="collapse" >
-									<div style="margin-top:2%;margin-bottom:2%">Subject : Subject of the letter something something something</div>
+									<div id="{{ other[i][0] }}" class="collapse" >
+									<div style="margin-top:2%;margin-bottom:2%">Subject : {{ other[i][3] }}</div>
 									<div class="history">
 										History<br>
+										
 										<table class="table">
 											<tbody>
+											{% for j in other[i][5] %}
 												<tr>
-													<td >Person 1</td> 
-													<td >Date : 01-02-2017</td>
-													<td >Forwarded  to Person2</td>
+													<td >{{ j[0] }}</td> 
+													<td >Date : {{ j[1] }}</td>
+													<td >Forwarded  to {{ j[2] }}</td>
 												</tr>
-												<tr>
-													<td>Person 2</td> 
-													<td>Date : 05-05-2017</td>
-													<td>Forwarded  to Person3</td>
-												</tr>
-												<tr>
-													<td>Person 4</td> 
-													<td>Date : 05-05-2017</td>
-													<td>Forwarded to Person5</td>
-												</tr>
-												<tr>
-													<td>Person 5</td> 
-													<td>Date : 06-05-2017</td>
-													<td>Forwarded to Person8</td>
-												</tr>
+											{% endfor %}
 											</tbody>
 										</table>
 									</div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:blue;border:none" onclick="view()"><strong>Forward</strong></button>
-									</div>
-									<div class="detail_inline" >
-										<button type="button" style="background:lime;border:none" class="btn btn-info" onclick="view()"><strong>Completed</strong></button>
-									</div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:red;border:none" onclick="view()"><strong>Reject</strong></button>
-									</div>
 								  </div>
-							  </a>
 							</li>
-							<li class="list-group-item letter_inside well">
-								<a data-toggle="collapse" href="#B1244" >
-									<div class="detail_inline">
-										<span class="glyphicon glyphicon-chevron-down"></span>
-										Letter id : B1244
-									</div>
-									<div class="detail_inline">Source : Himanshu</div>
-									<div class="detail_inline">Date : 25-09-2017</div>
-									<div class="detail_inline">Status : <strong style="color:green">Completed</strong></div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" onclick="view()">View Letter</button>
-									</div>
-									<div id="B1244" class="collapse" >
-									<div style="margin-top:2%;margin-bottom:2%">Subject : Subject of the letter something something something</div>
-									<div class="history">
-										History<br>
-										<table class="table">
-											<tbody>
-												<tr>
-													<td >Person 1</td> 
-													<td >Date : 01-02-2017</td>
-													<td >Forwarded  to Person2</td>
-												</tr>
-												<tr>
-													<td>Person 2</td> 
-													<td>Date : 05-05-2017</td>
-													<td>Forwarded  to Person3</td>
-												</tr>
-												<tr>
-													<td>Person 4</td> 
-													<td>Date : 05-05-2017</td>
-													<td>Forwarded to Person5</td>
-												</tr>
-												<tr>
-													<td>Person 5</td> 
-													<td>Date : 06-05-2017</td>
-													<td>Forwarded to Person8</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:blue;border:none" onclick="view()"><strong>Forward</strong></button>
-									</div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:red;border:none" onclick="view()"><strong>Reject</strong></button>
-									</div>
-									<div class="detail_inline">
-										<button type="button" class="btn btn-info" style="background:green;border:none" onclick="view()"><strong>Verify</strong></button>
-									</div>
-								  </div>
-							  </a>
-							</li>
-						
+						{% endfor %}
 						</ul>
-
 					</div>
 				  </div>
 				</div>
+
+				<form name="fiction" style="display:none" action="/viewletter/" method="post">
+                    <input type="number" id="letterView" name="letterView"/>
+                </form>
 			</div>
+			
 		<!-- 	<div>
 				<input id="sample" type="text" style="margin-top:500px" value="def"></input>
 			</div>
@@ -291,6 +313,6 @@
 			-->
 	</body>
 	<script type=text/javascript>
-	  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 	</script>
 </html>

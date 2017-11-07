@@ -24,7 +24,6 @@
 				<div class="row" id="myid" style="border:1px solid black;">
 					<div class="col-md-4" >				
 						<img src="{{url_for('static',filename='admin/bhulogo.JPG')}}" width="100%">
-						</img>
 					</div>
 					<div class="col-md-2"></div>
 					<div class="col-md-6" id="id1"> Faculty of Arts
@@ -32,7 +31,7 @@
 				</div>
 			  <div class="container-fluid" id="cont-flu">
 				<div class="navbar-header" >
-					<a class="anc" href="#">Banaras Hindu University Varanasi</a>
+					<a class="anc" href="/">Banaras Hindu University Varanasi</a>
 				</div>
 				<ul class="nav navbar-nav navbar-right" id="ele2">
 				  <li>
@@ -47,9 +46,9 @@
 			</nav>
 			<div id="personal" >
 				<ul class="list-group">
-					<li class="list-group-item">Settings</li>
-					<li class="list-group-item">Profile</li>
-					<li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+					<li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
 				</ul>
 			</div>
 			<div id="body_item">
