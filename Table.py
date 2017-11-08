@@ -1,38 +1,35 @@
 from MySQLdb import connect
-
+from dbcursor import *
 def attempt_creating_tables():
-
-	c=connect("localhost","root","dhirajfx3","facarts")
-	d=c.cursor()
 	#d.execute("drop database facarts;")
 	student(d)
 	attendance(d)
 	degree(d)
-	
+
 	library_card(d)
 	book(d)
 	borrowed(d)
-	
-	
-	
+
+
+
 
 	professor(d)
 	course(d)
 
 	timeTable(d)
-	ofClass(d)	
+	ofClass(d)
 	enrolledin(d)
-	
-	
+
+
 	office_personnels(d)
 	letter(d)
 	reciever_list(d)
-	
+
 	system_users(d)
 	c.commit()
 	c.close()
 	return True
-	
+
 def book(curr):
 	curr.execute(r'''
 				create table if not exists book
@@ -70,7 +67,7 @@ def borrowed(curr):
 							references library(cardno)
 							ON DELETE CASCADE,
 						primary key(acno,cno)
-						
+
 					);
 	''')
 	pass
@@ -90,7 +87,7 @@ def library_card(curr):
 					);
 	''')
 	pass
-	
+
 def student(curr):
 	curr.execute(r'''
 				create table if not exists student
@@ -117,7 +114,7 @@ def student(curr):
 					);
 	''')
 	pass
-	
+
 def attendance(curr):
 	curr.execute(r'''
 				create table if not exists attendance
@@ -133,7 +130,7 @@ def attendance(curr):
 					);
 	''')
 	pass
-		
+
 def degree(curr):
 	curr.execute(r'''
 				create table if not exists degree
@@ -150,7 +147,7 @@ def degree(curr):
 					);
 	''')
 	pass
-	
+
 def course(curr):
 	curr.execute(r'''
 				create table if not exists course
@@ -159,14 +156,14 @@ def course(curr):
 						name varchar(100),
 						type varchar(100),
 						duration int,
-						cprof int, 
+						cprof int,
 						foreign key (cprof)
 							references professor(profid)
 							ON DELETE SET NULL
 					);
 	''')
 	pass
-	
+
 def enrolledin(curr):
 	curr.execute(r'''
 				create table if not exists enrolledin
@@ -201,7 +198,7 @@ def ofClass(curr):
 					);
 	''')
 	pass
-	
+
 def timeTable(curr):
 	curr.execute(r'''
 				create table if not exists timetable
@@ -216,7 +213,7 @@ def timeTable(curr):
 					);
 	''')
 	pass
-	
+
 def professor(curr):
 	curr.execute(r'''
 				create table if not exists professor
@@ -230,7 +227,7 @@ def professor(curr):
 					);
 	''')
 	pass
-	
+
 def letter(curr):
 	curr.execute(r'''
 				create table if not exists letter
@@ -248,7 +245,7 @@ def letter(curr):
 					);
 	''')
 	pass
-	
+
 def reciever_list(curr):
 	curr.execute(r'''
 				create table if not exists recieverlist
@@ -284,7 +281,7 @@ def office_personnels(curr):
 					);
 	''')
 	pass
-	
+
 def system_users(curr):
 	curr.execute(r'''
 				create table if not exists user

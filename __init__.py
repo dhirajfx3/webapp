@@ -8,7 +8,7 @@ from Admin import *
 from Letters import *
 from library import *
 from Student import *
-
+from dbcursor import *
 from Table import attempt_creating_tables
 from cryptography.fernet import Fernet
 from smtplib import SMTP
@@ -30,8 +30,6 @@ app.register_blueprint(hp)
 app.register_blueprint(apg)
 app.register_blueprint(letters)
 app.secret_key="sdljksd21e-ds;lf"
-connector=connect("localhost","root","dhirajfx3","facarts");
-curs=connector.cursor()
 @app.route('/add_user/',methods=['Get','Post'])
 def add_user():
 	email=request.args.get('a')
@@ -40,43 +38,15 @@ def add_user():
 	id=request.args.get('d')
 	e=request.args.get('e')
 	f=alphaNum(20)
-	try:
-		if parseaddr(email)[0]=="" and parseaddr(email)[1]==email and len(email)!=0:
-			
-			object=SMTP('smtp.gmail.com:587')
-			object.starttls()
-			un='dhirajfx2@gmail.com'
-			pwd='NCR356$#!'
-			object.login(un,pwd)
-			Rf=""
-			if e=='1':
-				Rf="Admin"
-			elif e=='2':
-				Rf="Office personnel"
-			elif e=='3':
-				Rf="Faculty"
-			elif e=='4':
-				Rf="Student"
-			msg={'From':"dhirajfx2@gmail",'To':email,'Subject':'Do not Reply'}
-			mine_mime=MIMEMultipart()
-			text=MIMEText('Hello {0} !!!\n Your {2} account has been created on Faculty of Arts portal and your user id is :{3} and temporary password is {1}'.format(email,f,Rf,id),'plain')
-			mine_mime.attach(text)
-			for z in msg.keys():
-				mine_mime[z]=msg[z]
-			msg=mine_mime.as_string()
-			def fn(obj):
-				obj.sendmail(un,email,msg);
-				obj.quit()
-			
-			Thread(target=fn,args=(object,)).start()
-			if add_to_database(id,email,f,e,fname,lname)==False:
-				return jsonify("Some error occurred in inserting into database.\nPlease try again later.")
-			return jsonify(msg="{3} account for {0} with id {1} is created\nFurther instructions are sent to {2}".format(fname,id,email,Rf))
-	except:
-		return jsonify(msg="Some error occurred\nPlease try again later.")
+	#try:
+	if parseaddr(email)[0]=="" and parseaddr(email)[1]==email and len(email)!=0:
+		if add_to_database(id,email,f,e,fname,lname)==False:
+			return jsonify("Some error occurred in inserting into database.\nPlease try again later.")
+		return jsonify(msg="{3} account for {0} with id {1} is created\nwith password {2}".format(fname,id,f,Rf))
+	return jsonify(msg="Some error occurred\nPlease try again later.")
+
 	return jsonify(msg="INVALID EMAIL")
-	pass
-	#authentication pending
+#authentication pending
 
 @app.route('/letters/addletter/',methods=['Get','Post'])
 def add_letter():
@@ -86,10 +56,10 @@ def add_letter():
 		return redirect('/letters/');
 	else:
 		return("<h1 >Access Denied ERROR 401</h1>")
-		
+
 def login_attempt(us,pwd):
 	data=curs.execute("select * from user where uniq_id={0}".format(us))
-	
+
 	if data==1:
 		data=curs.fetchone()
 		suite=Fernet(b"%s" %str(data[3]))
@@ -119,7 +89,7 @@ def login_attempt(us,pwd):
 			session['name']=va
 			session['type']=ty
 			session['addr']=request.remote_addr
-			
+
 			return True
 	return False
 
@@ -146,17 +116,17 @@ def loginnow():
 @app.route("/fwd/",methods=["Get","Post"])
 def fwd():
 	if check_login():
-		
+
 		R=request.form['usid']
 		Lid=request.form['lid']
 		S=session['uid']
-		
+
 		if fwd_attempt(S,R,Lid):
 			return "<a href='localhost:5000/letters/'>Click to go back</a><br><h1>Letter forwarded</h1>"
 	return "Some error occurred please try again later..."
 
 def fwd_attempt(src,NEXT,id):
-	
+
 	if curs.execute("select holder from letter where lno=%s;",(id,)) :
 		if src==str(curs.fetchone()[0]):
 			if curs.execute("select id from office_personnels where id=%s;",(NEXT,)):
@@ -260,7 +230,7 @@ def get_profile_data(id):
 			res=res.strip(", ")
 			Details.append(("Enrolled courses",res))
 		data['Details']=Details
-		
+
 	elif curs.execute("select profid from professor where profid=%s",(id,)):
 		curs.fetchall()
 		curs.execute('select profid,fname,lname,email,phone from professor where profid=%s',(id,))
@@ -285,7 +255,7 @@ def get_profile_data(id):
 				('E-mail id',tup[2]),\
 				('Contact number',tup[3]),\
 				]
-		
+
 		data['Details']=Details
 	else:
 		data['Details']=[('No information found for this record',"")]
@@ -363,7 +333,7 @@ def get_sd(id,data):
 		print("res :",res)
 
 	return data;
-	
+
 def get_prof(id,data):
 	curs.execute("select * from professor where profid=%s",(id,));
 	R=[]
@@ -390,7 +360,7 @@ def get_prof(id,data):
 @app.route("/edit/update/",methods=["get","post"])
 def set_Val():
 	if check_login() and session['alevel']==1:
-		
+
 		if 'selectprofid' in request.form:
 			profify(request.form)
 		elif 'selectid' in request.form:
@@ -505,7 +475,7 @@ def srch_book2():
 			v=curs.execute("select ano,name,author,publisher,libcard\
 			from book where libcard is NOT NULL;")
 		da=list(curs.fetchall())
-		
+
 		for i in range(len(da)):
 			print(da[i])
 			x=list(da[i])
@@ -523,7 +493,7 @@ def srch_book2():
 					("Issue a library card","librarycard")]
 		data['buttons']=buttons
 		return render_template("/library/index.html",**data)
-	
+
 	return "<h1>You are not signed in</h1>"
 @app.route("/timetable/search/",methods=["get","post"])
 def srch_book():
@@ -543,7 +513,7 @@ def srch_book():
 		if type =="stu":
 			Q="select slot,courseid from ofclass c,timetable t where \
 c.clslot=t.slot and c.cldate=t.date_ and c.class_=t.class_id \
-and c.stuid={0} and t.date_='{1}'" 
+and c.stuid={0} and t.date_='{1}'"
 		elif type=="fac":
 			Q="select slot,courseid from professor p ,timetable t where \
 class_p=class_id and date_='{1}' profid={0}"
@@ -560,13 +530,13 @@ class_p=class_id and date_='{1}' profid={0}"
 			res[0][i+1]=str(d1.date())
 			d1=d1+timedelta(days=1)
 		d1=datetime.datetime.strptime("08:00", "%H:%M")
-	
+
 		for i in range(9):
 			res[i+1][0]=str(d1.time())
 			d1=d1+timedelta(hours=1)
 			res[i+1][0]+=" to "+str(d1.time())
 		d1=datetime.datetime.strptime(fv2,"%Y-%m-%d")
-	
+
 		for j in range(7):
 			print("Q:",Q.format(fv,str(d1.date())))
 			curs.execute(Q.format(fv,str(d1.date())))
@@ -665,10 +635,10 @@ def check_attendance():
 			L.append(i)
 		st=", ".join([str(x) for x  in L])
 		curs.execute("select stuid,count(stuid),croll,fname from attendance, student\
-		 where  stuid=eno and classattended=0 and stuid in ({0}) group by stuid".format(st)); 
+		 where  stuid=eno and classattended=0 and stuid in ({0}) group by stuid".format(st));
 		Absents=curs.fetchall()
 		curs.execute("select stuid,count(stuid),croll,fname from attendance, student\
-		 where  stuid=eno and classattended=1 and stuid in ({0}) group by stuid".format(st)); 
+		 where  stuid=eno and classattended=1 and stuid in ({0}) group by stuid".format(st));
 		Presents=curs.fetchall()
 		initial=dict()
 		final=dict()
@@ -771,7 +741,7 @@ def libr_home():
 					("Issue a library card","librarycard")]
 		data['buttons']=buttons
 		return render_template("/library/index.html",**data)
-	
+
 	return "<h1>You are not signed in</h1>"
 @app.route("/libraryedit/<book>/")
 def libform(book=None):
@@ -856,7 +826,7 @@ def libisue():
 @app.route("/bookinfo/",methods=["get","post"])
 def bookinfo():
 	if check_login() and session['alevel']<=2:
-		
+
 		Data=request.form;
 		D=[\
 			Data['selectano'],\
@@ -890,7 +860,7 @@ def bookinfo():
 			(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NULL)",D2);connector.commit()
 			return "<h1>Successfully add a new book</h1>"
 			return "<h1> Incosistent Data Provided</h1>"
-		
+
 			return "<h1> Some error occured kindly try after a few moments<h1>"
 	return "<h1>Unauthorized access </h1>"
 @app.route("/libraryissue/")
@@ -968,4 +938,4 @@ def get_office(id,data):
 	return data;
 if __name__=="__main__":
 	attempt_creating_tables()
-	app.run(debug=True)
+	app.run(debug=True,port=2650)
