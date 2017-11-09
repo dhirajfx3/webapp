@@ -16,8 +16,8 @@ from threading import Thread
 from datetime import timedelta
 import datetime
 
-#g=["localhost","root","dhirajfx3","facarts"]
-g=["dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts"]
+g=["localhost","root","dhirajfx3","facarts"]
+#g=["dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts"]
 connector=connect(*g)
 curs=connector.cursor()
 c=connector
@@ -856,11 +856,11 @@ def srch_book():
 	and c.stuid={0} and t.date_='{1}'"
 			elif type=="fac":
 				Q="select slot,courseid from professor p ,timetable t where \
-	class_p=class_id and date_='{1}' profid={0}"
+	class_p=class_id and date_='{1}' and profid={0}"
 			elif type=="cls":
 				Q="select slot,courseid from timetable t where\
 	 t.class_id = '{0}' \
-	 and t.date_='{1}'"
+	 and t.date_='{1}'" 
 			print(Q)
 			d1=datetime.datetime.strptime(fv2, "%Y-%m-%d")
 			data['buttons']=[]
