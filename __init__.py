@@ -15,7 +15,8 @@ from email.utils import parseaddr
 from threading import Thread
 from datetime import timedelta
 import datetime
-connector=connect("dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts")
+connector=connect("localhost","root","dhirajfx3","facarts")
+#connector=connect("dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts")
 curs=connector.cursor()
 c=connector
 d=curs
@@ -35,15 +36,15 @@ def add_user():
 	id=request.args.get('d')
 	e=request.args.get('e')
 	f=alphaNum(20)
-	#try:
-	if parseaddr(email)[0]=="" and parseaddr(email)[1]==email and len(email)!=0:
-		if add_to_database(id,email,f,e,fname,lname)==False:
-			return jsonify("Some error occurred in inserting into database.\nPlease try again later.")
-		return jsonify(msg="{3} account for {0} with id {1} is created\nwith password {2}".format(fname,id,f,Rf))
-	return jsonify(msg="Some error occurred\nPlease try again later.")
+	try:
+		if parseaddr(email)[0]=="" and parseaddr(email)[1]==email and len(email)!=0:
+			if add_to_database(id,email,f,e,fname,lname)==False:
+				return jsonify("Some error occurred in inserting into database.\nPlease try again later.")
+			return jsonify(msg="{3} account for {0} with id {1} is created\nwith password {2}".format(fname,id,f,Rf))
+		return jsonify(msg="Some error occurred\nPlease try again later.")
+	except:
+		return jsonify(msg="INVALID EMAIL")
 
-	return jsonify(msg="INVALID EMAIL")
-#authentication pending
 
 @app.route('/letters/addletter/',methods=['Get','Post'])
 def add_letter():
@@ -52,7 +53,7 @@ def add_letter():
 		add_letter_to_database(request.form['mail'],request.form['lno'],request.form['subject'],f.read())
 		return redirect('/letters/');
 	else:
-		return("<h1 >Access Denied ERROR 401</h1>")
+		return render_template("message/logedIN.html",name=session['name'],msg="Access Denied ERROR 401")
 
 def login_attempt(us,pwd):
 	data=curs.execute("select * from user where uniq_id={0}".format(us))
@@ -119,8 +120,8 @@ def fwd():
 		S=session['uid']
 
 		if fwd_attempt(S,R,Lid):
-			return "<a href='localhost:5000/letters/'>Click to go back</a><br><h1>Letter forwarded</h1>"
-	return "Some error occurred please try again later..."
+			return render_template("message/loggedIN.html",name=session['name'],msg="Letter forwarded")
+	return render_template("message/login",msg="Some error occurred please try again later...")
 
 def fwd_attempt(src,NEXT,id):
 
@@ -162,8 +163,8 @@ def rej():
 		Lid=request.form['act']
 		S=session['uid']
 		if comp_attempt(S,Lid):
-			return "<a href='localhost:5000/letters/'>Click to go back</a><br><h1>LetterRjected</h1>"
-		return "Rejection Failed!!!"
+			return render_template("message/loggedIN.html",name=session['name'],msg="LetterRjected")
+		return render_template("message/loggedIN.html",name=session['name'],msg="Rejection Failed!!!")
 def rej_attempt(src,id):
 	if curs.execute("select holder from letter where lno=%s",(id,)) :
 		if src==str(curs.fetchone()[0]):
@@ -179,12 +180,12 @@ def rej_attempt(src,id):
 def profile():
 	if check_login():
 		return get_profile_data(str(session['uid']))
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/settings/")
 def settin():
 	if check_login():
 		return render_template("/settings/settings.html",name=session['name'])
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 
 
 def get_profile_data(id):
@@ -279,7 +280,7 @@ def update(id):
 		data['id']=id
 		if var:
 			return render_template("student/edit.html",**data)
-	return "<h1>Invalid access request</h1>"
+	return render_template("message/login.html",msg="Invalid access request")
 
 def get_sd(id,data):
 	curs.execute("select * from student where eno=%s",(id,))
@@ -591,14 +592,14 @@ def set_Val():
 			officify(request.form)
 		elif 'selecteno' in request.form:
 			studify(request.form)
-	return "<h1>You have successfully edited details</h1>"
+	return render_template("message/login.html",msg="You have successfully edited details")
 
 @app.route("/student/")
 def studpg():
 	print('Access level :',session['alevel'])
 	if check_login() and session['alevel']<=3:
 		return render_template("/student/index.html",name=session['name'],uid=session['uid'],Rec=[])
-	return "<h1>You are not authorized to view this page</h1>"
+	return render_template("message/login.html",msg="You are not authorized to view this page")
 @app.route("/pwdchange/",methods=["get","post"])
 def pchange():
 	if check_login():
@@ -607,17 +608,17 @@ def pchange():
 			b=str(request.form['p2'])
 			c=str(request.form['p1'])
 			if b!=c or len(b)<8:
-				return "<h1>Do not interfere with developer's work!!!";
+				return render_template("message/loggedIN.html",name=session['name'],msg="Do not interfere with developer's work!!!");
 			id=session['uid']
 			curs.execute("select encpwd,seckey from user where uniq_id=%s",(id,))
 			D=curs.fetchone();F=Fernet(b"{0}".format(D[1]));p=F.decrypt(b"{0}".format(D[0]));
 			if str(p)==a:
 				F2=F.encrypt(b"{0}".format(b));Q=str("update user set encpwd ='{0}' where uniq_id={1};".format(F2,id))
 				print(Q);curs.execute(Q);connector.commit()
-				return "<h1>Your password changed</h1>"
-			return "<h1> Please enter you correct password to change to new one</h1>"
+				return "Your password changed"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Please enter you correct password to change to new one")
 		except:
-			return "<h1>Some error occured try again later</h1>"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Some error occured try again later")
 
 @app.route('/student/search/',methods=["get","post"])
 def search():
@@ -643,7 +644,7 @@ def search():
 		Data['name']=session['name']
 		Data['uid']=session['uid']
 		return render_template("/student/index.html",**Data)
-	return "<h1>Invalid access request</h1>"
+	return render_template("message/login.html",msg="Invalid access request")
 @app.route("/request/",methods=["get","post"])
 def load():
 	id=request.form['eno']
@@ -663,7 +664,7 @@ def load():
 			data['id']=id
 			if var:
 				return render_template("/student/readonly.html",**data)
-	return "<h1>Invalid access request</h1>"
+	return render_template("message/login.html",msg="Invalid access request")
 
 @app.route("/book/search/",methods=["get","post"])
 def srch_book2():
@@ -718,7 +719,7 @@ def srch_book2():
 		data['buttons']=buttons
 		return render_template("/library/index.html",**data)
 
-	return "<h1>You are not signed in</h1>"
+	return render_template("message/login.html",msg="You are not signed in")
 @app.route("/timetable/search/",methods=["get","post"])
 def srch_book():
 	if check_login() and session['alevel']<=4:
@@ -783,7 +784,7 @@ class_p=class_id and date_='{1}' profid={0}"
 		data['buttons']=buttons
 		data['search']="1"
 		return render_template("/timetable/index.html",**data)
-	return "<h1>You are not signed in</h1>"
+	return render_template("message/login.html",msg="You are not signed in")
 @app.route("/timetabledit/")
 def ttedit():
 	if check_login() and session['alevel']<=3:
@@ -801,7 +802,7 @@ def ttedit():
 		curs.execute("select name from course where cprof={0}".format(id))
 		data['coursename']=curs.fetchone()[0]
 		return render_template("/timetable/edit.html",**data)
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/timetableupdate/",methods=["get","post"])
 def ttupdate():
 	if check_login() and session['alevel']<=3:
@@ -819,8 +820,8 @@ def ttupdate():
 			1,'{2}'from student where class='{2}';".format(dte,slot,X))
 			curs.execute("insert into ofclass select eno,'{0}',{1},\
 			1,'{2}' from student where class='{2}';".format(dte,slot,X));connector.commit();
-		return "<h1>Update successful</h1>"
-	return "<h1>Unauthorized Access</h1>"
+		return render_template("message/loggedIN.html",name=session['name'],msg="Update successful")
+	return render_template("message/login.html",msg="Unauthorized Access")
 @app.route("/markattendanc/",methods=["get","post"])
 def mark_attendance():
 	if check_login() and session['alevel']==3:
@@ -835,8 +836,8 @@ def mark_attendance():
 				curs.execute("insert into attendance values('{0}','{1}',1,{2},{3})".\
 					format(date_,slot,i[5::],y(int(data[i]))))
 		connector.commit();
-		return "<h1>Attendance marked successfully</h1>"
-	return "<h1> Unauthorized access</h1>"
+		return render_template("message/loggedIN.html",name=session['name'],msg="Attendance marked successfully")
+	return render_template("message/login.html",msg=" Unauthorized access")
 @app.route("/showattendance/")
 def check_attendance():
 	if check_login() and session['alevel']<=4:
@@ -902,7 +903,7 @@ def check_attendance():
 			buttons.append(("Mark attendance","markattendance"))
 		data['buttons']=buttons
 		return render_template('/timetable/markattendance.html',**data)
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/markattendance/")
 def matt():
 	if check_login() and session['alevel']==3:
@@ -948,7 +949,7 @@ def timt():
 			buttons.append(("Mark attendance","markattendance"))
 		data['buttons']=buttons
 		return render_template("/timetable/index.html",**data)
-	return "<h1>Unauthorized access </h1>"
+	return render_template("message/login.html",msg="Unauthorized access ")
 @app.route("/library/")
 def libr_home():
 	if check_login():
@@ -966,7 +967,7 @@ def libr_home():
 		data['buttons']=buttons
 		return render_template("/library/index.html",**data)
 
-	return "<h1>You are not signed in</h1>"
+	return render_template("message/login.html",msg="You are not signed in")
 @app.route("/libraryedit/<book>/")
 def libform(book=None):
 	if check_login() and session['alevel']<=2:
@@ -992,7 +993,7 @@ def libform(book=None):
 		data['target']="bookinfo"
 		data['type']="Office member"
 		return render_template("/library/operation.html",**data)
-	return "<h1>Unauthorized user</h1>"
+	return render_template("message/login.html",msg="Unauthorized user")
 @app.route("/return/",methods=["get","post"])
 def retbook():
 	if check_login() and session['alevel']<=2:
@@ -1004,9 +1005,9 @@ def retbook():
 			curs.execute("update library set booksleft=booksleft+1 where cardno=%s",(cn,))
 			curs.execute("update book set libcard=NULL where ano=%s",(bn,))
 			connector.commit()
-			return "<h1>Book successfully returned</h1>"
-		return "<h1>Inconsistent data provided</h1>"
-	return "<h1>Unauthorized access</h1>"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Book successfully returned")
+		return render_template("message/loggedIN.html",name=session['name'],msg="Inconsistent data provided")
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/card/",methods=["get","post"])
 def librcard():
 	if check_login() and session['alevel']<=2:
@@ -1022,10 +1023,10 @@ def librcard():
 			print("IT IS D",D)
 			curs.execute("insert into library values({0},'{1}',{2},{3},{4})".format(D[0],D[1],D[2],D[3],D[4]))
 			connector.commit()
-			return "<h1>Card Successfully issued</h1>"
+			return render_template("message/login.html",name=session['name'],msg="Card Successfully issued")
 		except:
-			return "<h1>Inconsistent data provided</h1>"
-	return "<h1>Unauthorized access</h1>"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Inconsistent data provided")
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/issue/",methods=["get","post"])
 def libisue():
 	if check_login() and session['alevel']<=2:
@@ -1038,15 +1039,15 @@ def libisue():
 				else:
 					D[i]=str(D[i]);print("I am here")
 			if (not curs.execute("select booksleft from library where cardno=%s",(D[1],))) or curs.fetchone()[0]==0:
-				return "<h1>No more books can be issued for this student</h1>"
+				return "No more books can be issued for this student"
 			curs.execute("insert into borrowed values({0},{1},{2},'{3}')".format(D[0],D[1],D[2],D[3]))
 			curs.execute("update library set booksleft=booksleft-1 where cardno=%s",(D[1],))
 			curs.execute("update book set libcard=%s where ano=%s",(D[1],D[0],))
 			connector.commit()
-			return "<h1>Book Successfully issued</h1>"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Book Successfully issued")
 		except:
-			return "<h1>Inconsistent data provided</h1>"
-	return "<h1>Unauthorized access</h1>"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Inconsistent data provided")
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/bookinfo/",methods=["get","post"])
 def bookinfo():
 	if check_login() and session['alevel']<=2:
@@ -1077,16 +1078,16 @@ def bookinfo():
 			publisher=%s,\
 			papertype=%s,\
 			pagescount=%s where ano=%s)",D);connector.commit()
-			return "<h1>Successfully updated book details</h1>"
+			return render_template("message/logginIN.html",msg="Successfully updated book details")
 		else:
 			D2=D
 			curs.execute("insert into book values \
 			(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NULL)",D2);connector.commit()
-			return "<h1>Successfully add a new book</h1>"
-			return "<h1> Incosistent Data Provided</h1>"
+			return render_template("message/loggedIN.html",name=session['name'],msg="Successfully add a new book")
+			return render_template("message/loggedIN.html",name=session['name'],msg=" Incosistent Data Provided")
 
-			return "<h1> Some error occured kindly try after a few moments<h1>"
-	return "<h1>Unauthorized access </h1>"
+			return " Some error occured kindly try after a few moments"
+	return render_template("message/login.html",msg="Unauthorized access ")
 @app.route("/libraryissue/")
 def libissue():
 	if check_login() and session['alevel']<=2:
@@ -1100,7 +1101,7 @@ def libissue():
 		data['target']="issue"
 		data['type']="Office member"
 		return render_template("/library/operation.html",**data)
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 
 @app.route("/libraryreturn/")
 def libret():
@@ -1113,7 +1114,7 @@ def libret():
 		data['target']="return"
 		data['type']="Office member"
 		return render_template("/library/operation.html/",**data)
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 
 @app.route("/librarycard/")
 def libcard():
@@ -1129,7 +1130,7 @@ def libcard():
 		data['target']="card"
 		data['type']="Office Member"
 		return render_template("/library/operation.html/",**data)
-	return "<h1>Unauthorized access</h1>"
+	return render_template("message/login.html",msg="Unauthorized access")
 @app.route("/viewletter/",methods=["get","post"])
 def let_view():
 	if check_login() and session['alevel']<=2:
@@ -1140,8 +1141,8 @@ def let_view():
 			response.headers['Content-Type'] = 'image/jpeg'
 			response.headers['Content-Disposition'] = 'attachment; filename={0}.jpg'.format(request.form['letterView'])
 			return response
-		return "<h1>Letter not found</h1>"
-	return "<h1> Unauthorized access</h1>"
+		return render_template("message/loggedIN.html",name=session['name'],msg="Letter not found")
+	return render_template("message/login.html",msg=" Unauthorized access")
 	pass
 @app.route("/print/",methods=["get","post"])
 def un():
