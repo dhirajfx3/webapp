@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="{{url_for('static',filename='home/script/bootstrap.min.css')}}">
+
+		<!-- jQuery library -->
+		<!-- My css-->
+		<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='home/css/home.css')}}">
+		
+		<!-- MY JS-->
+			<script src="{{ url_for('static',filename='home/script/jquery.min.js')}}"></script>
+
+		<!-- Latest compiled JavaScript -->
+	<script src="{{url_for('static',filename='home/script/bootstrap.min.js')}}"></script>
+	<script src="/static/home/script/hom.js"></script>
+		<title>
+			Welcome
+		</title>
+	</head>
+	<body onload="set_pos()">
+			
+			<nav class="navbar navbar-inverse navbar-fixed-top" id="ele1">
+				<div class="row" id="myid" style="border:1px solid black;">
+					<div class="col-md-4" >				
+						<img src="{{url_for('static',filename='home/bhulogo.JPG')}}" width="100%">
+						</img>
+					</div>
+					<div class="col-md-2"></div>
+					<div class="col-md-6" id="id1"> Faculty of Arts
+					</div>
+				</div>
+			  <div class="container-fluid">
+				<div class="navbar-header" >
+					<a class="anc" href="/">Banaras Hindu University Varanasi</a>
+				</div>
+				<ul class="nav navbar-nav navbar-right" id="ele2">
+				  <li>
+					<a href="#"style="color:black">
+						<span class="glyphicon glyphicon-log-in" id="User_name" onclick="menu1()">
+						{{name}}&nbsp
+						</span>
+					</a>
+				  </li>
+				</ul>
+			  </div>
+			</nav>
+			<div id="personal">
+				<ul class="list-group">
+					<li onclick="location.href = '/settings/';" style="cursor:pointer" class="list-group-item">Settings</li>
+                    <li onclick="location.href = '/profile/';" style="cursor:pointer" class="list-group-item">Profile</li>
+                    <li onclick="location.href = '/logout/';" style="cursor:pointer" class="list-group-item">Logout</li>
+				</ul>
+			</div>
+		<div  id="body_item">
+			<section>
+				<div class="alert alert-success" style="font-size:20px">
+						<div class="container-flex text-center">
+							<div class="row">
+								<div class="col-md-12"  >				
+									<h1>{{ msg }}</h1>
+								</div>
+							</div>
+						</div>
+					</div>
+			</section>
+			<br>
+			<section>
+				
+				<div class="container-flex text-center">
+					<div class="row">
+						<div class="col-md-3"  >				
+							<div class="panel panel-default eff" onclick="location.href = '/letters/'">
+								<div class="panel-body" style="cursor:pointer;">Letters</div>
+							</div>
+						</div>
+						<div class="col-md-3">
+								<div class="panel panel-default eff" onclick="location.href = '/student/'">
+									<div class="panel-body" style="cursor:pointer;">Student Records</div>
+								</div>						
+							
+						</div>
+						<div class="col-md-3" >
+							<div class="panel panel-default eff" onclick="location.href = '/timetable/';">
+								<div class="panel-body" style="cursor:pointer;">Time Table</div>
+							</div>
+						</div>
+						<div class="col-md-3" >
+							<div class="panel panel-default eff"onclick="location.href = '/library/';" >
+								<div class="panel-body" style="cursor:pointer;">Library</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</body>
+	
+</html>
