@@ -15,11 +15,20 @@ from email.utils import parseaddr
 from threading import Thread
 from datetime import timedelta
 import datetime
-#connector=connect("localhost","root","dhirajfx3","facarts")
-connector=connect("dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts")
+
+g=["localhost","root","dhirajfx3","facarts"]
+#g=["dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts"]
+connector=connect(*g)
 curs=connector.cursor()
 c=connector
 d=curs
+def dbcomm():
+	global connector,curs,c,d
+	connector.close()
+	connector=connect(*g)
+	curs=connector.cursor()
+	c=connector
+	d=curs
 path = os.path.join('.', os.path.dirname(__file__), 'static/js/sijax/')
 app= Flask(__name__)
 app.config['SIJAX_STATIC_PATH'] = path
@@ -53,15 +62,17 @@ def add_letter():
 		add_letter_to_database(request.form['mail'],request.form['lno'],request.form['subject'],f.read())
 		return redirect('/letters/');
 	else:
-		return render_template("message/logedIN.html",name=session['name'],msg="Access Denied ERROR 401")
+		return render_template("message/loggedIN.html",name=session['name'],msg="Access Denied ERROR 401")
 
 def login_attempt(us,pwd):
+	dbcomm()
 	data=curs.execute("select * from user where uniq_id={0}".format(us))
 
 	if data==1:
 		data=curs.fetchone()
 		suite=Fernet(b"%s" %str(data[3]))
 		ep=suite.decrypt(b"%s" %str(data[2]))
+		
 		if ep == pwd :
 			session['uid']=us
 			session['alevel']=data[4]
@@ -121,17 +132,18 @@ def fwd():
 
 		if fwd_attempt(S,R,Lid):
 			return render_template("message/loggedIN.html",name=session['name'],msg="Letter forwarded")
-	return render_template("message/login",msg="Some error occurred please try again later...")
+	return render_template("message/login.html",msg="Some error occurred please try again later...")
 
 def fwd_attempt(src,NEXT,id):
 
 	if curs.execute("select holder from letter where lno=%s;",(id,)) :
 		if src==str(curs.fetchone()[0]):
+			dbcomm()
 			if curs.execute("select id from office_personnels where id=%s;",(NEXT,)):
 				curs.execute("update letter set holder =%s where lno=%s;",(NEXT,id,))
 				idx=curs.execute("select count(idx) from recieverlist where letno=%s;",(id,))
 				idx=curs.fetchone()[0]+1
-				curs.execute("insert into recieverlist values(%s,%s,%s,%s,curdate(),'forwarded');",(id,NEXT,idx,src,))
+				curs.execute("insert into recieverlist values(%s,%s,%s,%s,curdate(),'forwarded');",(id,idx,NEXT,src,))
 				connector.commit()
 				return True
 	return False
@@ -147,6 +159,7 @@ def comp():
 	return jsonify(msg="INVALID REQUEST")
 
 def comp_attempt(src,id):
+	dbcomm()
 	if curs.execute("select holder from letter where lno=%s",(id,)) :
 		if src==str(curs.fetchone()[0]):
 			curs.execute("update letter set holder =null,status='completed' where lno=%s",(id,))
@@ -166,6 +179,7 @@ def rej():
 			return render_template("message/loggedIN.html",name=session['name'],msg="LetterRjected")
 		return render_template("message/loggedIN.html",name=session['name'],msg="Rejection Failed!!!")
 def rej_attempt(src,id):
+	dbcomm()
 	if curs.execute("select holder from letter where lno=%s",(id,)) :
 		if src==str(curs.fetchone()[0]):
 			curs.execute("update letter set holder =null,status='rejected' where lno=%s;",(id,))
@@ -190,6 +204,7 @@ def settin():
 
 def get_profile_data(id):
 	data=dict()
+	dbcomm()
 	data['name']=session['name']
 	data['uid']=session['uid']
 	data['Data']=[id]
@@ -264,7 +279,7 @@ def update(id):
 	if check_login() and session['alevel']==1:
 		data=dict()
 		var=0
-
+		dbcomm()
 		if curs.execute("select eno from student where eno=%s;",(id,)):
 			#name type display name value
 			data=get_sd(id,data)
@@ -283,6 +298,7 @@ def update(id):
 	return render_template("message/login.html",msg="Invalid access request")
 
 def get_sd(id,data):
+	dbcomm()
 	curs.execute("select * from student where eno=%s",(id,))
 	R=[]
 	tup=curs.fetchone()
@@ -310,7 +326,7 @@ def get_sd(id,data):
 	
 def add_to_database(id,email,pwd,al,fname,lname):
 	try:
-
+		dbcomm()
 		key=Fernet.generate_key()
 		suite=Fernet(key)
 		s1=suite.encrypt(b"{0}".format(pwd))
@@ -339,7 +355,7 @@ def add_to_database(id,email,pwd,al,fname,lname):
 		return False
 
 def add_letter_to_database(src,num,sub,content):
-
+	dbcomm()
 	qry="insert into letter values('%s',%s,curdate(),'%s','pending',%s" %(src,num,sub,session['uid']) + ",%s)"
 	c.commit()
 	d.execute(qry,(content,))
@@ -348,6 +364,7 @@ def add_letter_to_database(src,num,sub,content):
 	c.commit()
 
 def getImage(pid):
+	dbcomm()
 	g=d.execute("select image from letter where lno = %s",(pid,)).fetchone()[0]
 	response = make_response(g)
 	response.headers['Content-Type'] = 'image/jpeg'
@@ -366,6 +383,7 @@ def alphaNum(L,fixed=True):
 			Result+=chr(ord('A')+R-100)
 	return Result
 def studify(Data):
+	dbcomm()
 	Data2=dict()
 	for i in Data.keys():
 		Data2[i]=str(Data[i]).strip("'")
@@ -464,6 +482,7 @@ def studify(Data):
 	c.commit()
 	pass
 def profify(Data):
+	dbcomm()
 	Data2=dict()
 	for i in Data.keys():
 		Data2[i]=str(Data[i]).strip("'")
@@ -512,6 +531,7 @@ def profify(Data):
 		print("Q:",Q),d.execute(Q);c.commit();
 	c.commit()
 def officify(Data):
+	dbcomm()
 	Data2=dict()
 	for i in Data.keys():
 		Data2[i]=str(Data[i]).strip("'")
@@ -560,6 +580,7 @@ def officify(Data):
 	return data;
 
 def get_prof(id,data):
+	dbcomm()
 	curs.execute("select * from professor where profid=%s",(id,));
 	R=[]
 	tup=curs.fetchone()
@@ -604,6 +625,7 @@ def studpg():
 def pchange():
 	if check_login():
 		try:
+			dbcomm()
 			a=str(request.form['cp'])
 			b=str(request.form['p2'])
 			c=str(request.form['p1'])
@@ -623,6 +645,7 @@ def pchange():
 @app.route('/student/search/',methods=["get","post"])
 def search():
 	if check_login() and session['alevel']<=3:
+		dbcomm()
 		filter=str(request.form['filterby'])
 		filter_value=str(request.form['filtervalue']);print("FIL:",filter,filter_value)
 		rc=0;
@@ -648,6 +671,7 @@ def search():
 @app.route("/request/",methods=["get","post"])
 def load():
 	id=request.form['eno']
+	dbcomm()
 	if check_login():
 		if session['alevel']==1:
 			return redirect("/edit/"+str(id))
@@ -669,6 +693,7 @@ def load():
 @app.route("/book/search/",methods=["get","post"])
 def srch_book2():
 	if check_login() and session['alevel']<=4:
+		dbcomm()
 		data=dict();print("signed in")
 		data['uid']=session['uid']
 		data['name']=session['name']
@@ -724,6 +749,7 @@ def srch_book2():
 def srch_book():
 	if check_login() and session['alevel']<=4:
 		data=dict();print("signed in")
+		dbcomm()
 		data['uid']=session['uid']
 		data['name']=session['name']
 		data['search']="1"
@@ -789,6 +815,7 @@ class_p=class_id and date_='{1}' profid={0}"
 def ttedit():
 	if check_login() and session['alevel']<=3:
 		data=dict()
+		dbcomm()
 		data['search']="0"
 		data['name']=session['name']
 		buttons=[("See attendance","showattendance")]
@@ -807,6 +834,7 @@ def ttedit():
 def ttupdate():
 	if check_login() and session['alevel']<=3:
 		data=request.form
+		dbcomm()
 		pid=session['uid']
 		dte=data['date_']
 		slot=data['slot']
@@ -826,6 +854,7 @@ def ttupdate():
 def mark_attendance():
 	if check_login() and session['alevel']==3:
 		data=request.form;
+		dbcomm()
 		slot=data['slot']
 		date_=data['date_']
 		curs.execute("select class_p from professor where profid={0}".format(session['uid']))
@@ -843,6 +872,7 @@ def check_attendance():
 	if check_login() and session['alevel']<=4:
 		class_p=""
 		data=dict()
+		dbcomm()
 		id=session['uid']
 		if session['alevel']==3:
 			curs.execute("select class_p from professor where profid={0}".format(id));
@@ -908,6 +938,7 @@ def check_attendance():
 def matt():
 	if check_login() and session['alevel']==3:
 		data=dict()
+		dbcomm()
 		data['name']=session['name']
 		data['res']=[]
 		id=session['uid']
@@ -972,6 +1003,7 @@ def libr_home():
 def libform(book=None):
 	if check_login() and session['alevel']<=2:
 		R=[];data=dict()
+		dbcomm()
 		tup=["" for i in range(11)]
 		if str(book):
 			if curs.execute("select * from book where ano=%s",(book,)):
@@ -998,6 +1030,7 @@ def libform(book=None):
 def retbook():
 	if check_login() and session['alevel']<=2:
 		Data=request.form
+		dbcomm()
 		cn=str(Data['selectcardno'])
 		bn=str(Data['selectano'])
 		if curs.execute("select acno,cno from borrowed where acno=%s and cno=%s",(bn,cn,)):
@@ -1012,6 +1045,7 @@ def retbook():
 def librcard():
 	if check_login() and session['alevel']<=2:
 		try:
+			dbcomm()
 			Data=request.form
 			D=[Data['selectcardno'],Data['selectexpiry'],"curdate()",Data["selectbooksleft"]\
 			,Data["selectstuid"]]
@@ -1031,6 +1065,7 @@ def librcard():
 def libisue():
 	if check_login() and session['alevel']<=2:
 		try:
+			dbcomm()
 			Data=request.form
 			D=[Data['selectano'],Data['selectcardno'],"curdate()",Data["selectdue"]]
 			for i in range(len(D)):
@@ -1051,7 +1086,7 @@ def libisue():
 @app.route("/bookinfo/",methods=["get","post"])
 def bookinfo():
 	if check_login() and session['alevel']<=2:
-
+		dbcomm()
 		Data=request.form;
 		D=[\
 			Data['selectano'],\
@@ -1134,6 +1169,7 @@ def libcard():
 @app.route("/viewletter/",methods=["get","post"])
 def let_view():
 	if check_login() and session['alevel']<=2:
+		dbcomm()
 		if curs.execute("select lno from letter where lno={0}".format(request.form['letterView'])):
 			curs.execute("select image from letter where lno={0}".format(request.form['letterView']))
 			imag3=curs.fetchone()[0]
@@ -1149,6 +1185,7 @@ def un():
 	print(request.form.keys())
 	return "ok"
 def get_office(id,data):
+	dbcomm()
 	curs.execute("select * from office_personnels where id=%s",(id,));
 	R=[];
 	tup=curs.fetchone()
@@ -1166,6 +1203,7 @@ def get_office(id,data):
 def letterf():
 	if ("uid" in session) and session['addr']==request.remote_addr:
 		disc=dict();
+		dbcomm()
 		d.execute("select * from recieverlist order by idx;")
 		x=d.fetchall()
 		S=set()
@@ -1226,9 +1264,16 @@ def letterf():
 		return render_template("letters/index.html",**data_pack)
 	else:
 		return redirect("/")
-
+@app.route("/pay/")
+def pay_donate():
+	return render_template("payment/pay.html")
+@app.route("/paynow/",methods=["get","post"])
+def pau():
+	return render_template("payment/recieved.html",msg="Paid Amount :"+request.form['amt']\
+	+" from " +request.form['name'])
 def attempt_creating_tables():
 	#d.execute("drop database facarts;")
+	dbcomm()
 	student(d)
 	attendance(d)
 	degree(d)
