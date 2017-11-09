@@ -15,8 +15,8 @@ from email.utils import parseaddr
 from threading import Thread
 from datetime import timedelta
 import datetime
-connector=connect("localhost","root","dhirajfx3","facarts")
-#connector=connect("dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts")
+#connector=connect("localhost","root","dhirajfx3","facarts")
+connector=connect("dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts")
 curs=connector.cursor()
 c=connector
 d=curs
