@@ -2,7 +2,7 @@ from flask import *
 import sys
 import os
 import flask_sijax
-
+from random import randint
 from Home import *
 from Admin import *
 from cryptography.fernet import Fernet
@@ -44,15 +44,21 @@ def add_user():
 	lname=request.args.get('c')
 	id=request.args.get('d')
 	e=request.args.get('e')
-	f=alphaNum(20)
-	try:
-		if parseaddr(email)[0]=="" and parseaddr(email)[1]==email and len(email)!=0:
-			if add_to_database(id,email,f,e,fname,lname)==False:
-				return jsonify("Some error occurred in inserting into database.\nPlease try again later.")
-			return jsonify(msg="{3} account for {0} with id {1} is created\nwith password {2}".format(fname,id,f,Rf))
-		return jsonify(msg="Some error occurred\nPlease try again later.")
-	except:
-		return jsonify(msg="INVALID EMAIL")
+	f=alphaNum(20);Rf=""
+	if e=='1':
+		Rf="Admin"
+	elif e=='2':
+		Rf="Office personnel"
+	elif e=='3':
+		Rf="Faculty"
+	elif e=='4':
+		Rf="Student"
+	if parseaddr(email)[0]=="" and parseaddr(email)[1]==email and len(email)!=0:
+		if add_to_database(id,email,f,e,fname,lname)==False:
+			return jsonify("Some error occurred in inserting into database.\nPlease try again later.")
+		return jsonify(msg="{3} account for {0} with id {1} is created\nwith password {2}".format(fname,id,f,Rf))
+	return jsonify(msg="Some error occurred\nPlease try again later.")
+	return jsonify(msg="INVALID EMAIL")
 
 
 @app.route('/letters/addletter/',methods=['Get','Post'])
@@ -322,7 +328,31 @@ def get_sd(id,data):
 	R.append(("admdate","date","Admission date",tup[17],''))
 	R.append(("class","text","Class",tup[18],''))
 	data['Requirements']=R;
+	
+	data['type']='student'
+	if curs.execute("select name,cgpa,institute,year from degree where stuid=%s",(id,)):
+		dup=curs.fetchall()
+		i=1;print("your def",dup);
+		Degree=[]
+		for x in dup:
+			y=list(x)
+			y.insert(0,i)
+			i+=1
+			Degree.append(y)
+		data['Degree']=Degree;
+	if curs.execute("select courseid from enrolledin where stuid=%s",(id,)):
+		dup=curs.fetchall()
+		res=[]
+		for x in dup:
+			if curs.execute("select * from course where cid=%s",(x[0],)):
+				t=curs.fetchone()
+				curs.execute("select fname,lname from professor where profid=%s",(t[4],))
+				gt=" ".join([str(X) for X in list(curs.fetchone())]);t=list(t);t.append(gt)
+				res.append(t);
+		data['Course']=res
+		print("res :",res)
 
+	return data;
 	
 def add_to_database(id,email,pwd,al,fname,lname):
 	try:
