@@ -16,8 +16,8 @@ from threading import Thread
 from datetime import timedelta
 import datetime
 
-g=["localhost","root","dhirajfx3","facarts"]
-#g=["dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts"]
+#g=["localhost","root","dhirajfx3","facarts"]
+g=["dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts"]
 connector=connect(*g)
 curs=connector.cursor()
 c=connector
