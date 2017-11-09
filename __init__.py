@@ -5,11 +5,6 @@ import flask_sijax
 
 from Home import *
 from Admin import *
-from Letters import *
-from library import *
-from Student import *
-from dbcursor import *
-from Table import attempt_creating_tables
 from cryptography.fernet import Fernet
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -18,9 +13,12 @@ import re
 from MySQLdb import connect
 from email.utils import parseaddr
 from threading import Thread
-from DatabaseOperation import *
 from datetime import timedelta
 import datetime
+connector=connect("dhirajfx2.mysql.pythonanywhere-services.com","dhirajfx2","dbmsproject2018","dhirajfx2$facarts")
+curs=connector.cursor()
+c=connector
+d=curs
 path = os.path.join('.', os.path.dirname(__file__), 'static/js/sijax/')
 app= Flask(__name__)
 app.config['SIJAX_STATIC_PATH'] = path
@@ -28,7 +26,6 @@ app.config['SIJAX_JSON_URI'] = '/static/js/sijax/json2.js'
 flask_sijax.Sijax(app)
 app.register_blueprint(hp)
 app.register_blueprint(apg)
-app.register_blueprint(letters)
 app.secret_key="sdljksd21e-ds;lf"
 @app.route('/add_user/',methods=['Get','Post'])
 def add_user():
@@ -309,6 +306,233 @@ def get_sd(id,data):
 	R.append(("class","text","Class",tup[18],''))
 	data['Requirements']=R;
 
+	
+def add_to_database(id,email,pwd,al,fname,lname):
+	try:
+
+		key=Fernet.generate_key()
+		suite=Fernet(key)
+		s1=suite.encrypt(b"{0}".format(pwd))
+		al=int(al)
+		d.execute("insert into user values({0},'{1}','{2}','{3}',{4})".format(id,email,s1,key,al))
+
+		if al==1:
+			#admin level 2
+			pass;
+		elif al==2:
+			#office
+			d.execute("insert into office_personnels (id,fname,lname,email) values({0},'{1}','{2}','{3}')".format(id,fname,lname,email));
+			pass
+		elif al==3:
+			#faculty
+			d.execute("insert into professor (profid,fname,lname,email) values({0},'{1}','{2}','{3}')".format(id,fname,lname,email));
+			pass
+		elif al==4:
+			#student
+			d.execute("insert into student (eno,fname,lname,email) values({0},'{1}','{2}','{3}')".format(id,fname,lname,email));
+			pass
+		c.commit()
+
+		return True
+	except:
+		return False
+
+def add_letter_to_database(src,num,sub,content):
+
+	qry="insert into letter values('%s',%s,curdate(),'%s','pending',%s" %(src,num,sub,session['uid']) + ",%s)"
+	c.commit()
+	d.execute(qry,(content,))
+	qry="insert into recieverlist values(%s,1,%s,%s,curdate(),'pending')" %(num,session['uid'],session['uid'])
+	d.execute(qry)
+	c.commit()
+
+def getImage(pid):
+	g=d.execute("select image from letter where lno = %s",(pid,)).fetchone()[0]
+	response = make_response(g)
+	response.headers['Content-Type'] = 'image/jpeg'
+	response.headers['Content-Disposition'] = 'attachment; filename=%s.jpg' %pid
+	return response
+def alphaNum(L,fixed=True):
+	sz=randint(1,L)
+	if fixed==True:
+		sz=L
+	Result=""
+	for i in range(sz):
+		R=randint(0,125)
+		if R<100:
+			Result+=str(R//10)
+		else:
+			Result+=chr(ord('A')+R-100)
+	return Result
+def studify(Data):
+	Data2=dict()
+	for i in Data.keys():
+		Data2[i]=str(Data[i]).strip("'")
+	Data=Data2
+	Keys=[]
+	Pk=str(Data['selecteno'])
+	print(Data['fname'])
+	if Data['fname']=="-1":
+		Keys.append("fname='"+str(Data['selectfname'])+"'")
+	if Data['lname']=="-1":
+		Keys.append("lname='"+str(Data['selectlname'])+"'")
+	if Data['mothername']=="-1":
+		Keys.append("mothername='"+str(Data['selectmothername'])+"'")
+	if Data['fathername']=="-1":
+		Keys.append("fathername='"+str(Data['selectfathername'])+"'")
+	if Data['house']=="-1":
+		Keys.append("house="+str(Data['selecthouse']))
+	if Data['sector']=="-1":
+		Keys.append("sector="+str(Data['selectsector']))
+	if Data['state']=="-1":
+		Keys.append("state='"+str(Data['selectstate'])+"'")
+	if Data['city']=="-1":
+		Keys.append("city='"+str(Data['selectcity'])+"'")
+	if Data['zip']=="-1":
+		Keys.append("zip="+str(Data['selectzip']))
+	if Data['category']=="-1":
+		Keys.append("category ='"+ str(Data['selectcategory'])+"'")
+	if Data['religion']=="-1":
+		Keys.append("religion='"+str(Data['selectreligion'])+"'")
+	if Data['dob']=="-1":
+		Keys.append("dob='"+str(Data['selectdob'])+"'")
+	if Data['contactno']=="-1":
+		Keys.append("contactno="+str(Data['selectcontactno']))
+	if Data['email']=="-1":
+		Keys.append("email='"+str(Data['selectemail'])+"'")
+	if Data['programme']=="-1":
+		Keys.append("programme='"+str(Data['selectprogramme'])+"'")
+	if Data['admdate']=="-1":
+		Keys.append("admdate='"+str(Data['selectadmdate'])+"'")
+	if Data['class']=="-1":
+		Keys.append("class='"+str(Data['selectclass'])+"'")
+	s=",".join(Keys)
+	Qry=[]
+	if s.strip(''):
+		print("update student set {0} where eno={1};".format(str(s),Pk))
+		Qry.append(str("update student set {0} where eno={1};".format(str(s),Pk)))
+
+	Courses=[]
+	for i in Data.keys():
+		if search("^cid.*",str(i)):
+			#print(i)
+			y=str(i)[3::]
+			if y and Data[y]=="-1":
+				Courses.append(str(i))
+	for i in Courses:
+		y=i[3::]
+		if y and Data['butc'+y]=="1":
+			Qry.append("delete from enrolledin where courseid={0} and stuid={1};".format(Data[i],Pk))
+	for i in Courses:
+		y=i[3::]
+		if Data[i] and Data['butc'+y]=='0':
+			if d.execute("select cid from course where cid={0};".format(Data[i])):
+				Qry.append("update course set name='{0}',type='{1}',duration={2},cprof={3} where cid={4};".format(Data['cname'+y],\
+				Data['ctype'+y],Data['cduration'+y],Data['cmentorid'+y],Data[i]))
+			else:
+				Qry.append("insert into course values({0},'{1}','{2}',{3},{4})".format(Data[i],Data['cname'+y],\
+				Data['ctype'+y],Data['cduration'+y],Data['cmentorid'+y]))
+	for i in Courses:
+		y=i[3::]
+		if Data[i] and Data['butc'+y]=='0':
+			if d.execute("select stuid from enrolledin where courseid={0} and stuid={1};".format(Data[i],Pk))==0:
+				Qry.append("insert into enrolledin values({0},{1})".format(Pk,Data[i]))
+	Degree=[]
+	for i in Data.keys():
+		if search("^name.*",str(i)):
+			y=str(i)[4::]
+			if y and Data[y]=="-1":
+				Degree.append(str(i))
+	for i in Degree:
+		y=i[4::]
+		if y and Data['butd'+y]=="1":
+			Qry.append("delete from degree where stuid={0} and name='{1}';".format(Pk,Data[i]))
+	for i in Degree:
+		y=i[4::]
+		if Data[i] and Data['butd'+y]=='0':
+			TR=("select name from degree	where stuid={0} and name ='{1}';".format(Pk,Data[i]))
+			if d.execute(TR):
+				Qry.append("update degree set cgpa={0},institute='{1}' year={2}\
+				where stuid={3} and name='{4}';".format (\
+				Data['cgpa'+y],Data['ins'+y],Data['yr'+y],str(Pk),str(Data['name'])))
+			else:
+				Qry.append("insert into degree values('{0}',{1},{2},'{3}',{4});".format(Data['name'+y],\
+				Pk,Data['cgpa'+y],Data['ins'+y],Data['yr'+y]))
+	for Q in Qry:
+		d.execute(Q)
+	c.commit()
+	pass
+def profify(Data):
+	Data2=dict()
+	for i in Data.keys():
+		Data2[i]=str(Data[i]).strip("'")
+	Data=Data2
+	Keys=[]
+	Pk=str(Data['selectprofid'])
+	print(Data['fname'])
+	if Data['fname']=="-1":
+		Keys.append("fname='"+str(Data['selectfname'])+"'")
+	if Data['lname']=="-1":
+		Keys.append("lname='"+str(Data['selectlname'])+"'")
+	if Data['contactno']=="-1":
+		Keys.append("contactno="+str(Data['selectcontactno']))
+	if Data['email']=="-1":
+		Keys.append("email='"+str(Data['selectemail'])+"'")
+	if Data['class_p']=="-1":
+		Keys.append("class_p='"+str(Data['selectclass_p'])+"'")
+
+	s=",".join(Keys)
+	Qry=[]
+	if s.strip(''):
+		Qry.append(str("update professor set {0} where profid={1};".format(s,Pk)))
+	Courses=[]
+	for i in Data.keys():
+		if search("^cid.*",str(i)):
+			#print(i)
+			y=str(i)[3::]
+			if y and Data[y]=="-1":
+				Courses.append(str(i))
+	for i in Courses:
+		y=i[3::]
+		if y and Data['butc'+y]=="1":
+			Qry.append("delete from enrolledin where courseid={0}".format(Data[i]))
+			Qry.append("delete from course where cid={0}".format(Data[i]))
+	for i in Courses:
+		y=i[3::]
+		if Data[i] and Data['butc'+y]=='0':
+			if d.execute("select cid from course where cid={0};".format(Data[i])):
+				Qry.append("update course set name='{0}',type='{1}',duration={2},cprof={3} where cid={4};".format(Data['cname'+y],\
+				Data['ctype'+y],Data['cduration'+y],Data['cmentorid'+y],Data[i]))
+			else:
+				Qry.append("insert into course values({0},'{1}','{2}',{3},{4})".format(Data[i],Data['cname'+y],\
+				Data['ctype'+y],Data['cduration'+y],Pk))
+
+	for Q in Qry:
+		print("Q:",Q),d.execute(Q);c.commit();
+	c.commit()
+def officify(Data):
+	Data2=dict()
+	for i in Data.keys():
+		Data2[i]=str(Data[i]).strip("'")
+	Data=Data2
+	Keys=[]
+	Pk=str(Data['selectid'])
+	print(Data['fname'])
+	if Data['fname']=="-1":
+		Keys.append("fname='"+str(Data['selectfname'])+"'")
+	if Data['lname']=="-1":
+		Keys.append("lname='"+str(Data['selectlname'])+"'")
+	if Data['contactno']=="-1":
+		Keys.append("contactno="+str(Data['selectcontactno']))
+	if Data['email']=="-1":
+		Keys.append("email='"+str(Data['selectemail'])+"'")
+	s=",".join(Keys)
+	Qry=[]
+	if s.strip(''):
+		Qry.append(str("update office_personnels set {0} where id={1};".format(s,Pk)))
+	for Q in Qry:
+		print("Q:",Q),d.execute(Q);c.commit()
+	pass
 	data['type']='student'
 	if curs.execute("select name,cgpa,institute,year from degree where stuid=%s",(id,)):
 		dup=curs.fetchall()
@@ -936,6 +1160,366 @@ def get_office(id,data):
 	data['Requirements']=R;
 	data['type']='Office Member'
 	return data;
+
+@app.route('/letters/',methods=['get','post'])
+def letterf():
+	if ("uid" in session) and session['addr']==request.remote_addr:
+		disc=dict();
+		d.execute("select * from recieverlist order by idx;")
+		x=d.fetchall()
+		S=set()
+		for i in x:
+			S.add(i[0])
+		Letter=[[], [], []] #pending on curr,pending on other ,completed or rej
+		i,j,l=0,0,0
+
+		for k in S:
+			d.execute("select src,date_in,subject,status,holder from letter where lno = %s",(k,))
+			gf=d.fetchone()
+			if gf[3]=='pending':
+				if str(gf[4])==str(session['uid']):
+					Letter[0].append([])
+					Letter[0][i].append(k)
+					Letter[0][i].append(gf[0])
+					Letter[0][i].append(gf[1])
+					Letter[0][i].append(gf[2])
+					Letter[0][i].append(gf[3])
+					Letter[0][i].append([])
+					Letter[0][i].append(True)
+					disc[k]=(0,i)
+					i+=1
+				else:
+					Letter[1].append([])
+					Letter[1][j].append(k)
+					Letter[1][j].append(gf[0])
+					Letter[1][j].append(gf[1])
+					Letter[1][j].append(gf[2])
+					Letter[1][j].append(gf[3])
+					Letter[1][j].append([])
+					Letter[1][j].append(False)
+					disc[k]=(1,j)
+					j+=1
+			else:
+				Letter[2].append([])
+				Letter[2][l].append(k)
+				Letter[2][l].append(gf[0])
+				Letter[2][l].append(gf[1])
+				Letter[2][l].append(gf[2])
+				Letter[2][l].append(gf[3])
+				Letter[2][l].append([])
+				Letter[2][l].append(False)
+				disc[k]=(2,l)
+				l+=1
+		for jm in x:
+			fnameR="NONE"
+			fnameS="NONE"
+			if jm[2]!=None:
+				d.execute("select fname from office_personnels where id=%s",(jm[2],))
+				fnameR=d.fetchone()[0]
+			if jm[3]!=None:
+				d.execute("select fname from office_personnels where id=%s",(jm[3],))
+				fnameS=d.fetchone()[0]
+			Letter[disc[jm[0]][0]][disc[jm[0]][1]][5].append([fnameS,jm[4],fnameR])
+
+		data_pack = {'new':Letter[0],'pending':Letter[1],"other":Letter[2],'name':session['name'],'uid':session['uid']};
+		return render_template("letters/index.html",**data_pack)
+	else:
+		return redirect("/")
+
+def attempt_creating_tables():
+	#d.execute("drop database facarts;")
+	student(d)
+	attendance(d)
+	degree(d)
+
+	library_card(d)
+	book(d)
+	borrowed(d)
+
+
+
+
+	professor(d)
+	course(d)
+
+	timeTable(d)
+	ofClass(d)
+	enrolledin(d)
+
+
+	office_personnels(d)
+	letter(d)
+	reciever_list(d)
+
+	system_users(d)
+	c.commit()
+	return True
+
+def book(curr):
+	curr.execute(r'''
+				create table if not exists book
+					(
+						ano int primary key,
+						dateofpurchase date,
+						name varchar(100),
+						author varchar(100),
+						price float(7,2),
+						booktype varchar(100),
+						supplier varchar(100),
+						publisher varchar(100),
+						papertype varchar(30),
+						pagescount int,
+						libcard int,
+						foreign key (libcard)
+							references library(cardno)
+							ON DELETE SET NULL
+					);
+	''')
+	pass
+
+def borrowed(curr):
+	curr.execute(r'''
+				create table if not exists borrowed
+					(
+						acno int,
+						cno int,
+						issue date,
+						due date,
+						foreign key (acno)
+							references book(ano)
+							ON DELETE CASCADE,
+						foreign key (cno)
+							references library(cardno)
+							ON DELETE CASCADE,
+						primary key(acno,cno)
+
+					);
+	''')
+	pass
+
+def library_card(curr):
+	curr.execute(r'''
+				create table if not exists library
+					(
+						cardno int primary key,
+						expiry date,
+						issue date,
+						booksleft int,
+						stuid int,
+						foreign key (stuid)
+							references student(eno)
+							ON DELETE CASCADE
+					);
+	''')
+	pass
+
+def student(curr):
+	curr.execute(r'''
+				create table if not exists student
+					(
+						eno int primary key,
+						fname varchar(100),
+						lname varchar (100),
+						croll int,
+						mothername varchar(100),
+						fathername varchar(100),
+						house int,
+						sector int,
+						state varchar(100),
+						city varchar(100),
+						zip int,
+						category varchar(30),
+						religion varchar(30),
+						dob date,
+						contactno bigint,
+						email varchar(100),
+                        programme varchar(100),
+                        admdate date,
+						class varchar(100)
+					);
+	''')
+	pass
+
+def attendance(curr):
+	curr.execute(r'''
+				create table if not exists attendance
+					(
+						classdate date,classslot int,
+						duration int,
+						stuid int,
+						classattended bit(1),
+						foreign key (stuid)
+							references student(eno)
+							ON DELETE CASCADE,
+						primary key (classdate,classslot,stuid)
+					);
+	''')
+	pass
+
+def degree(curr):
+	curr.execute(r'''
+				create table if not exists degree
+					(
+						name varchar(100),
+						stuid int,
+						cgpa float(3,2),
+						institute varchar(100),
+						year int,
+						foreign key (stuid)
+							references student(eno)
+							ON DELETE CASCADE,
+						primary key (name,stuid)
+					);
+	''')
+	pass
+
+def course(curr):
+	curr.execute(r'''
+				create table if not exists course
+					(
+						cid int primary key,
+						name varchar(100),
+						type varchar(100),
+						duration int,
+						cprof int,
+						foreign key (cprof)
+							references professor(profid)
+							ON DELETE SET NULL
+					);
+	''')
+	pass
+
+def enrolledin(curr):
+	curr.execute(r'''
+				create table if not exists enrolledin
+					(
+						stuid int,
+						courseid int,
+						foreign key (stuid)
+							references student(eno),
+						foreign key (courseid)
+							references course(cid)
+							ON DELETE CASCADE,
+						primary key(stuid,courseid)
+					);
+	''')
+	pass
+
+def ofClass(curr):
+	curr.execute(r'''
+				create table if not exists ofclass
+					(
+						stuid int,
+						cldate date,clslot int,
+						duration int,
+						class_ varchar(100),
+						foreign key (stuid)
+							references student(eno)
+							ON DELETE CASCADE,
+						foreign key (cldate,clslot,class_)
+							references timetable(date_,slot,class_id)
+							ON DELETE CASCADE,
+						primary key(stuid,cldate,clslot)
+					);
+	''')
+	pass
+
+def timeTable(curr):
+	curr.execute(r'''
+				create table if not exists timetable
+					(
+						date_ date,slot int,
+						class_id varchar(100),
+						courseid int,
+						foreign key(courseid)
+							references course(cid)
+							ON DELETE CASCADE,
+						primary key(date_,slot,class_id)
+					);
+	''')
+	pass
+
+def professor(curr):
+	curr.execute(r'''
+				create table if not exists professor
+					(
+						profid int primary key,
+						fname varchar(100),
+						lname varchar(100),
+						email varchar(100),
+						phone bigint,
+						class_p varchar(100)
+					);
+	''')
+	pass
+
+def letter(curr):
+	curr.execute(r'''
+				create table if not exists letter
+					(
+						src varchar(100),
+						lno int primary key,
+						date_in date,
+						subject varchar(300),
+						status varchar(30),
+						holder int,
+						image longblob,
+						foreign key(holder)
+							references office_personnels(id)
+							ON DELETE SET NULL
+					);
+	''')
+	pass
+
+def reciever_list(curr):
+	curr.execute(r'''
+				create table if not exists recieverlist
+					(
+						letno int,
+						idx int ,
+						recieverno int,
+						senderno int,
+						recdate date,
+						action varchar(100),
+						foreign key(letno)
+							references letter(lno)
+							ON DELETE CASCADE,
+						foreign key(recieverno)
+							references office_personnels(id)
+							ON DELETE SET NULL,
+						foreign key (senderno)
+							references office_personnels(id)
+							ON DELETE SET NULL
+					);
+	''')
+	pass
+
+def office_personnels(curr):
+	curr.execute(r'''
+				create table if not exists office_personnels
+					(
+						id int primary key,
+						fname varchar(100),
+						lname varchar(100),
+						email varchar(100),
+						contactno bigint
+					);
+	''')
+	pass
+
+def system_users(curr):
+	curr.execute(r'''
+				create table if not exists user
+					(
+						uniq_id int primary key,
+						username varchar(100),
+						encpwd varchar(200),
+						seckey varchar(200),
+						access int
+					);
+	''')
+	pass
+		
 if __name__=="__main__":
 	attempt_creating_tables()
 	app.run(debug=True,port=2650)
