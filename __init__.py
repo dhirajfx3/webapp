@@ -175,8 +175,8 @@ def rej():
 	if check_login():
 		Lid=request.form['act']
 		S=session['uid']
-		if comp_attempt(S,Lid):
-			return render_template("message/loggedIN.html",name=session['name'],msg="LetterRjected")
+		if rej_attempt(S,Lid):
+			return render_template("message/loggedIN.html",name=session['name'],msg="LetterRejected")
 		return render_template("message/loggedIN.html",name=session['name'],msg="Rejection Failed!!!")
 def rej_attempt(src,id):
 	dbcomm()
