@@ -1,4 +1,5 @@
 # webapp
+## Website for managing an educational institution's functionalities, originally made for Faculty of Arts BHU. 
 ## login with
 ### username:15075014
 ### password:12345678
